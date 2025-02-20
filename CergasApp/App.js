@@ -11,6 +11,7 @@ import {
   Alert} from 'react-native';
 import WelcomeScreen from './app/screens/WelcomeScreen';
 import ViewImageScreen from './app/screens/ViewImageScreen';
+import HomeScreen from './app/screens/HomeScreen';
 
 export default function App() {
   const handlePress = () => console.log('Text clicked');
