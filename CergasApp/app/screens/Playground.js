@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FontAwesome } from '@expo/vector-icons';
 import AppText from '../components';
 import Card from '../components/Card';
+import ListItem from '../components/ListItem';
 
 function Playground(props) {
     return (
@@ -12,6 +13,11 @@ function Playground(props) {
                 title="Heart Rate"
                 subTitle="80bpm"
                 image={require("../assets/heartbeat_monitor.webp")}
+            />
+            <ListItem 
+                image={require("../assets/profile_photo.jpeg")}
+                title="A person"
+                subTitle="Basic user"
             />
             
             <AppText>I love being CERGAS!</AppText>
