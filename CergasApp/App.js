@@ -5,7 +5,7 @@ import WelcomeScreen from './app/screens/WelcomeScreen';
 import ViewImageScreen from './app/screens/ViewImageScreen';
 import HomeScreen from './app/screens/HomeScreen';
 import Playground from './app/screens/Playground';
-import AppButton from './app/components/AppText/AppButton';
+import AppButton from './app/components/AppButton';
 import TrackingDataScreen from './app/screens/TrackingDataScreen';
 
 export default function App() {

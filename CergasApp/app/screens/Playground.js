@@ -2,8 +2,8 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FontAwesome } from '@expo/vector-icons';
-import AppText from '../components/AppText';
-import Card from '../components/AppText/Card';
+import AppText from '../components';
+import Card from '../components/Card';
 
 function Playground(props) {
     return (

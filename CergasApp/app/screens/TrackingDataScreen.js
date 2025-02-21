@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
-import AppText from '../components/AppText';
+import AppText from '../components';
 import colors from '../config/colors';
 
 function TrackingDataScreen(props) {
