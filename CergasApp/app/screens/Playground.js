@@ -19,6 +19,11 @@ function Playground(props) {
                 title="A person"
                 subTitle="Basic user"
             />
+            <ListItem 
+                image={require("../assets/profile_photo.jpeg")}
+                title="A person"
+                subTitle="Basic user"
+            />
             
             <AppText>I love being CERGAS!</AppText>
             <MaterialCommunityIcons name='email' size={60} color={"orange"}/>
