@@ -1,14 +1,74 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import React, { act } from 'react';
+import { View, StyleSheet, Text, SafeAreaView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { FontAwesome } from '@expo/vector-icons';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 import AppText from '../components';
 import Card from '../components/Card';
 import ListItem from '../components/ListItem';
+import { Button } from '@react-navigation/elements';
+
+const Tweets = ({navigation}) => (
+    <SafeAreaView>
+        <Text> Tweets </Text>
+        <Button
+            title="View Tweet" 
+            onPress={() => navigation.navigate('TweetDetails')}
+        />
+    </SafeAreaView>
+)
+
+const TweetDetails = () => (
+    <SafeAreaView>
+        <Text> Tweets Details </Text>
+    </SafeAreaView>
+);
+
+const Account = () => (
+    <SafeAreaView>
+        <Text> Account </Text>
+    </SafeAreaView>
+)
+
+const Stack = createStackNavigator();
+const StackNavigator = () => (
+    <Stack.Navigator >
+        <Stack.Screen name="Tweets" component={Tweets}/>
+        <Stack.Screen name="TweetDetails" component={TweetDetails}/>
+    </Stack.Navigator>
+);
+
+
+const Tab = createBottomTabNavigator();
+const TabNavigator = () => (
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+        <Tab.Screen 
+            name="Feed" 
+            component={StackNavigator}
+            options={{
+                tabBarIcon: ({size, color}) => <MaterialCommunityIcons name="home" size={size} color={color}/>
+            }} 
+        />
+        <Tab.Screen 
+            name="Account" 
+            component={Account}
+            options={{
+                tabBarIcon: ({size, color}) => <MaterialCommunityIcons name="account" size={size} color={color}/>
+            }} 
+        />
+    </Tab.Navigator>
+);
 
 function Playground(props) {
     return (
-        <View style={styles.container}>
+
+        <NavigationContainer>
+            <TabNavigator/>
+        </NavigationContainer>
+
+        /* <View style={styles.container}>
             <Card
                 title="Heart Rate"
                 subTitle="80bpm"
@@ -32,10 +92,12 @@ function Playground(props) {
 
                 </View>
             </View>
-        </View>
+        </View> */
         
     );
 }
+
+
 
 const styles = StyleSheet.create({
     container:{
