@@ -1,17 +1,32 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, Text } from 'react-native';
+import {MaterialCommunityIcons} from '@expo/vector-icons';
 import colors from '../config/colors';
-import AppText from './AppText/AppText';
 
-function Card({title, subTitle, image}) {
+function Card({title, subTitle, image, onPress, icon, lastUpdated}) {
     return (
-        <View style={styles.card}>
-            <Image style={styles.image} source={image}/>
-            <View style={styles.cardText}>
-                <AppText style={styles.cardTitle}>{title}</AppText>
-                <AppText style={styles.cardSubTitle}>{subTitle}</AppText>
+        <TouchableOpacity onPress={onPress}>
+            <View style={styles.card}>
+                {icon ?(
+                    <View style={styles.iconContainer}>
+                        <MaterialCommunityIcons name={icon} size={80} color={colors.grey}/>
+                    </View>
+                ):(
+                    <Image style={styles.image} source={image}/>
+                )}
+                
+                <View style={styles.cardText}>
+                    <Text style={styles.cardTitle}>{title}</Text>
+                    {subTitle ? <Text style={styles.cardSubTitle}>{subTitle}</Text> : null}
+                    {lastUpdated ? <Text style={styles.lastUpdated}>{lastUpdated}</Text> : null}
+
+                </View>
+                <View style={styles.cardChevron}>
+                    <MaterialCommunityIcons  name="chevron-right" size={50} color={colors.grey}/>
+                </View>
             </View>
-        </View>
+        </TouchableOpacity>
+        
     );
 }
 
@@ -21,13 +36,24 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
         marginBottom:20,
         overflow:'hidden',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 100,
     },
     image:{
-        width:'100%',
-        height:200,
+        width: 100,
+        height: '100%',
+    },
+    iconContainer:{
+        width: 100,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     cardText:{
         padding:20,
+        flex:1,
     },
     cardTitle:{
         marginBottom: 7,
@@ -36,7 +62,21 @@ const styles = StyleSheet.create({
     cardSubTitle:{
         marginBottom:1,
         fontWeight:'bold'
+    },
+    lastUpdated:{
+        color: colors.grey,
+        fontSize: 10,
+        marginTop: 10,
+    },
+    cardChevron:{
+        //backgroundColor: colors.secondary,
+        width: 50,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
     }
+
 
 })
 

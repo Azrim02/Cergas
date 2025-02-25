@@ -13,7 +13,8 @@ export default function App() {
   console.log(Dimensions.get('screen'));
   return (
     //<WelcomeScreen/>
-    <Playground/>
+    //<Playground/>
+    <HomeScreen/>
     //<TrackingDataScreen/>
   );
 }
