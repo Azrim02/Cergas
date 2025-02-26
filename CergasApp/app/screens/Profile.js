@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, FlatList, Icon } from 'react-native';
 import colors from '../config/colors';
+import Routes from '../navigation/routes';
 import ListItem from '../components/ListItem';
 import ListItemSeparator from '../components/ListItemSeparator';
 
@@ -22,7 +23,7 @@ const list = [
             name: "office-building",
             //backgroundColor: colors.secondary,
         },
-        //targetScreen: Routes.MESSAGES,
+        targetScreen: Routes.WORKPLACE_DETAILS,
         data: {},
     },
     {
@@ -37,7 +38,7 @@ const list = [
     },
 ]
 
-function Profile(props) {
+function Profile({ navigation }) {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.profileContainer}>
@@ -57,7 +58,7 @@ function Profile(props) {
                             selection={item.title}
                             iconName={item.icon.name}
                             iconSize={40}
-                            onPress={() => console.log("List Item clicked", item)}
+                            onPress={() => navigation.navigate(item.targetScreen)}
                         />  
                     )}
                     ItemSeparatorComponent={ListItemSeparator}

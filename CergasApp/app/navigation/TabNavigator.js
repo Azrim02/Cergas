@@ -3,9 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/Home';
-import ProfileScreen from '../screens/Profile';
 import routes from './routes';
 import { NavigationContainer } from '@react-navigation/native';
+import ProfileNavigator from './ProfileNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -24,7 +24,7 @@ function TabNavigator(props) {
                 />
                 <Tab.Screen 
                     name={routes.PROFILE} 
-                    component={ProfileScreen} 
+                    component={ProfileNavigator} 
                     options={{
                         tabBarIcon: ({color, size}) => 
                         <MaterialCommunityIcons name="account" color={color} size={size}/>
