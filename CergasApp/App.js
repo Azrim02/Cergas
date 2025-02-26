@@ -3,10 +3,12 @@ import React from 'react';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import WelcomeScreen from './app/screens/WelcomeScreen';
 import ViewImageScreen from './app/screens/ViewImageScreen';
-import HomeScreen from './app/screens/HomeScreen';
+import HomeScreen from './app/screens/Home';
 import Playground from './app/screens/Playground';
 import AppButton from './app/components/AppButton';
 import TrackingDataScreen from './app/screens/TrackingDataScreen';
+import ProfileScreen from './app/screens/Profile';
+import TabNavigator from './app/navigation/TabNavigator';
 
 export default function App() {
   const handlePress = () => console.log('Text clicked');
@@ -14,7 +16,9 @@ export default function App() {
   return (
     //<WelcomeScreen/>
     //<Playground/>
-    <HomeScreen/>
+    //<HomeScreen/>
+    //<ProfileScreen/>
+    <TabNavigator/>
     //<TrackingDataScreen/>
   );
 }

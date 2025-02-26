@@ -29,7 +29,7 @@ const trackingData = [
     }
 ];
 
-function HomeScreen(props) {
+function Home(props) {
     return (
         <View style={styles.container}>
             <ImageBackground source={require("../assets/heartbeat_monitor.webp")} style={styles.upperContainer}>
@@ -53,7 +53,6 @@ function HomeScreen(props) {
                 />
 
             </View>
-            <Text> Home </Text>
         </View>
     );
 }
@@ -92,4 +91,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default HomeScreen;
+export default Home;
