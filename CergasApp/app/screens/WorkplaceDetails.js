@@ -1,7 +1,9 @@
-import React, {useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, Platform, PermissionsAndroid, Alert } from 'react-native';
+import React, {useState, useRef, useEffect, lazy } from 'react';
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, Button, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Circle } from "react-native-maps";
+import * as Location from 'expo-location';
+import Slider from "@react-native-community/slider";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const daysOfWeek = [
@@ -16,8 +18,8 @@ const daysOfWeek = [
 
 function WorkplaceDetails(props) {
 
+    // Day Selection
     const [selectedDays, setSelectedDays] = useState([]);
-
     const toggleDay = (day) => {
         setSelectedDays((prevDays) =>
         prevDays.includes(day)
@@ -26,28 +28,23 @@ function WorkplaceDetails(props) {
         );
     };
 
+    // Time Selection
     const [startTime, setStartTime] = useState(() => {
         let date = new Date();
         date.setHours(9, 0, 0, 0); // 09:00:00.000
         return date;
-    });
-      
+    });   
     const [endTime, setEndTime] = useState(() => {
         let date = new Date();
         date.setHours(17, 0, 0, 0); // 17:00:00.000
         return date;
     });
-      
-    //const [show, setShow] = useState(false);
-    
-
     const onChangeStartTime = (event, selectedTime) => {
         //setShow(false); // Hide the picker after selection
         if (selectedTime) {
         setStartTime(selectedTime); // Update time
         }
     };
-
     const onChangeEndTime = (event, selectedTime) => {
         //setShow(false); // Hide the picker after selection
         if (selectedTime) {
@@ -55,16 +52,15 @@ function WorkplaceDetails(props) {
         }
     };
 
-
+    // Location Selection
     const [selectedLocation, setSelectedLocation] = useState({
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
+        latitude: 53.46743878,
+        longitude: -2.2340612,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
     });
-    
-    const mapRef = useRef(null);
-    
+    const [radius, setRadius] = useState(100);
+    const mapRef = useRef(null); 
     const handleLocationSelect = (data, details) => {
         const location = details.geometry.location;
         setSelectedLocation({
@@ -82,6 +78,49 @@ function WorkplaceDetails(props) {
           longitudeDelta: 0.05,
         });
     };
+    const [errorMsg, setErrorMsg] = useState(null);
+    // Function to request permission and fetch location
+    const getCurrentLocation = async () => {
+        try {
+            // Request permission
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== "granted") {
+                setErrorMsg("Permission to access location was denied");
+                Alert.alert("Permission Denied", "Please enable location services.");
+                return;
+            }
+    
+            // Fetch current location
+            let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+            const { latitude, longitude } = location.coords;
+    
+            // Update state
+            setSelectedLocation({
+                latitude,
+                longitude,
+                latitudeDelta: 0.01, // Zoom level
+                longitudeDelta: 0.01,
+            });
+    
+            // Animate the map to the new location
+            if (mapRef.current) {
+                mapRef.current.animateToRegion({
+                    latitude,
+                    longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                }, 1000); // 1-second animation
+            }
+        } catch (error) {
+            console.log("Location error:", error);
+            setErrorMsg("Error fetching location");
+        }
+    };
+    
+    // Automatically fetch location on mount
+    useEffect(() => {
+        getCurrentLocation();
+    }, []);
 
     return (
         <ScrollView>
@@ -134,6 +173,7 @@ function WorkplaceDetails(props) {
             </View>
             <Text style={styles.header1}>Location</Text>
             <View style={styles.mapContainer}>
+                
                 <MapView
                     ref={mapRef}
                     style={styles.map}
@@ -146,10 +186,49 @@ function WorkplaceDetails(props) {
                     })
                     }
                 >
-                    {/* Marker for selected location */}
-                    <Marker coordinate={selectedLocation} />
+                    {/* Circle Around Marker */}
+                    <Circle
+                        center={selectedLocation}
+                        radius={radius}
+                        strokeWidth={2}
+                        strokeColor="rgba(0,122,255,0.8)" // Blue border
+                        fillColor="rgba(0,122,255,0.3)" // Light blue fill
+                    />
+
+                    {/* Draggable Marker */}
+                    <Marker
+                        coordinate={selectedLocation}
+                        draggable
+                        onDragEnd={(e) => setSelectedLocation(e.nativeEvent.coordinate)}
+                    />
                 </MapView>
-            </View>  
+            </View>
+            <View style={styles.mapSettingContainer}>
+                <View>
+                    {/*
+                    <Text>Current Location:</Text>
+                    {errorMsg ? <Text>{errorMsg}</Text> : null}
+                    {selectedLocation ? (
+                        <Text>Latitude: {selectedLocation.latitude}, Longitude: {selectedLocation.longitude}</Text>
+                    ) : (
+                        <Text>Fetching location...</Text>
+                    )}
+                        */}
+                    <Button title="Get Current Location" onPress={getCurrentLocation} />
+                </View>
+                <View>
+                    <Text>Radius: {radius} meters</Text>
+                    <Slider
+                        style={{ width: 300, height: 40 }}
+                        minimumValue={100}
+                        maximumValue={1000}
+                        step={10}
+                        value={radius}
+                        onValueChange={(value) => setRadius(value)}
+                    />
+                </View>
+                
+            </View>
         </View>             
         </ScrollView>
         
@@ -203,13 +282,19 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },    
     mapContainer: {
-        justifyContent: "center",
-        alignItems: "center",
+        //justifyContent: "center",
+        //alignItems: "center",
         height: 500,
     },
     map: {
         width: '100%',
         height: '100%', 
+    },
+    mapSettingContainer: {
+        margin: 10,
+        flexDirection: 'row',
+        flex:1,
+        justifyContent: 'space-evenly',
     },
 })
 

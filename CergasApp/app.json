@@ -13,9 +13,13 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby places."
+      },
       "supportsTablet": true
     },
     "android": {
+      "permissions": ["ACCESS_FINE_LOCATION"],
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
