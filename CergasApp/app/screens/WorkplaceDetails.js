@@ -119,9 +119,9 @@ function WorkplaceDetails(props) {
     };
     
     // Automatically fetch location on mount
-    useEffect(() => {
-        getCurrentLocation();
-    }, []);
+    //useEffect(() => {
+    //    getCurrentLocation();
+    //}, []);
 
     return (
         <ScrollView>
