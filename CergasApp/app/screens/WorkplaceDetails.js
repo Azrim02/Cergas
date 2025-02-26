@@ -1,7 +1,8 @@
-import React, {useState, useRef, useEffect, lazy } from 'react';
+import React, {useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, Button, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MapView, { Marker, Circle } from "react-native-maps";
+import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
 import Slider from "@react-native-community/slider";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -153,27 +154,29 @@ function WorkplaceDetails(props) {
                 </Text>*/}
             </View>
             <Text style={styles.header1}>Office Hours</Text>
-            <View>
-                <Text style={styles.header2}>Select Start Time</Text>
-                <DateTimePicker
-                    value={startTime}
-                    mode="time"
-                    //display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={onChangeStartTime}
-                />
-                <Text style={styles.header2}>Select End Time</Text>
-                <DateTimePicker
-                    value={endTime}
-                    mode="time"
-                    //display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={onChangeEndTime}
-                />
-                
-                
+            <View style={styles.timeSelection}>
+                <View>
+                    <Text style={styles.header2}>Start Time</Text>
+                    <DateTimePicker
+                        value={startTime}
+                        mode="time"
+                        //display={Platform.OS === "ios" ? "spinner" : "default"}
+                        onChange={onChangeStartTime}
+                    />
+                </View>
+                <View>
+                    <Text style={styles.header2}>End Time</Text>
+                    <DateTimePicker
+                        value={endTime}
+                        mode="time"
+                        //display={Platform.OS === "ios" ? "spinner" : "default"}
+                        onChange={onChangeEndTime}
+                    />
+                </View>
+
             </View>
             <Text style={styles.header1}>Location</Text>
-            <View style={styles.mapContainer}>
-                
+            <View style={styles.mapContainer}>             
                 <MapView
                     ref={mapRef}
                     style={styles.map}
@@ -204,7 +207,7 @@ function WorkplaceDetails(props) {
                 </MapView>
             </View>
             <View style={styles.mapSettingContainer}>
-                <View>
+                <View style={styles.mapSettingItem}>
                     {/*
                     <Text>Current Location:</Text>
                     {errorMsg ? <Text>{errorMsg}</Text> : null}
@@ -216,10 +219,10 @@ function WorkplaceDetails(props) {
                         */}
                     <Button title="Get Current Location" onPress={getCurrentLocation} />
                 </View>
-                <View>
+                <View style={styles.mapSettingItem}>
                     <Text>Radius: {radius} meters</Text>
                     <Slider
-                        style={{ width: 300, height: 40 }}
+                        style={styles.slider}
                         minimumValue={100}
                         maximumValue={1000}
                         step={10}
@@ -227,7 +230,6 @@ function WorkplaceDetails(props) {
                         onValueChange={(value) => setRadius(value)}
                     />
                 </View>
-                
             </View>
         </View>             
         </ScrollView>
@@ -245,8 +247,8 @@ const styles = StyleSheet.create({
     header1:{
         fontSize: 30,
         fontWeight: 'bold',
-        marginBottom: 20,
-        marginTop: 10,
+        marginBottom: 5,
+        marginTop: 20,
     },
     header2:{
         fontSize: 20,
@@ -260,10 +262,11 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     dayButton: {
-        margin: 5,
-        padding: 10,
+        width: 45,
+        margin: 2,
+        padding: 4,
         borderWidth: 1,
-        borderRadius: 20,
+        borderRadius: 10,
         borderColor: "#3498db",
     },
     selectedDay: {
@@ -272,6 +275,7 @@ const styles = StyleSheet.create({
     dayText: {
         fontSize: 16,
         color: "#3498db",
+        alignSelf: "center",
     },
     selectedText: {
         color: "white",
@@ -280,7 +284,12 @@ const styles = StyleSheet.create({
         marginTop: 15,
         fontSize: 16,
         fontWeight: "bold",
-    },    
+    },   
+    timeSelection: {
+        margin: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+    }, 
     mapContainer: {
         //justifyContent: "center",
         //alignItems: "center",
@@ -291,11 +300,22 @@ const styles = StyleSheet.create({
         height: '100%', 
     },
     mapSettingContainer: {
-        margin: 10,
+        margin: 0,
         flexDirection: 'row',
         flex:1,
         justifyContent: 'space-evenly',
     },
+    mapSettingItem: {
+        width: "45%", // Make the inner views smaller
+        padding: 10,
+        backgroundColor: "#f0f0f0", // Optional: background color
+        borderRadius: 10, // Optional: rounded corners
+        alignItems: 'center', // Center content
+    },
+    slider: {
+        width: "100%", // Make the slider fit inside
+    },
+
 })
 
 export default WorkplaceDetails;
