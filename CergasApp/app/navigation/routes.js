@@ -1,7 +1,7 @@
 const routes = Object.freeze({
     HOME: 'Home',
     PROFILE: 'Profile',
-    WELCOME: 'WelcomeScreen',
+    WELCOME: 'Welcome',
     WORKPLACE_DETAILS: 'Workplace Details',
 
 })

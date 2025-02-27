@@ -7,7 +7,7 @@ import AppButton from '../components/AppButton';
 
 
 
-function WelcomeScreen(props) {
+function Welcome(props) {
     const fadeAnim = useRef(new Animated.Value(0)).current; // Start fully transparent
     const zoomAnim = useRef(new Animated.Value(0.8)).current; // Start slightly zoomed-in
     const AnimatedImageBackground = Animated.createAnimatedComponent(ImageBackground);
@@ -95,4 +95,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default WelcomeScreen;
+export default Welcome;
