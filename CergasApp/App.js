@@ -1,26 +1,42 @@
-import React from 'react';
+import React from "react";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { useAuth, AuthProvider } from "./app/AuthProvider"; // Import Auth Context
 
-import { View, Dimensions, StyleSheet } from 'react-native';
-import TabNavigator from './app/navigation/TabNavigator';
-import AuthNavigator from './app/navigation/AuthNavigator';
-import { NavigationContainer } from '@react-navigation/native';
+import TabNavigator from "./app/navigation/TabNavigator"; // Main App
+import AuthNavigator from "./app/navigation/AuthNavigator"; // Login/Register
 
-export default function App() {
-  console.log(Dimensions.get('screen'));
+function MainApp() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
-    
-      <NavigationContainer>
-        <TabNavigator/> 
-      </NavigationContainer>
-    
+    <NavigationContainer>
+      {user ? <TabNavigator /> : <AuthNavigator />}
+    </NavigationContainer>
   );
 }
 
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
+  );
+}
+
+// Centralized Styles
 const styles = StyleSheet.create({
-  container: {
+  loadingContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
-})
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

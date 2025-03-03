@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, FlatList, Icon } from 'react-native';
+import { View, StyleSheet, SafeAreaView, FlatList } from 'react-native';
+import { useAuth } from "../AuthProvider"; // Import Auth Context
+
 import colors from '../config/colors';
 import Routes from '../navigation/routes';
 import ListItem from '../components/ListItem';
@@ -39,6 +41,8 @@ const list = [
 ]
 
 function Profile({ navigation }) {
+    const { user, logout } = useAuth(); // Get user and logout function
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.profileContainer}>
@@ -69,7 +73,7 @@ function Profile({ navigation }) {
                     selection={"Logout"}
                     iconName={"logout"}
                     iconSize={40}
-                    onPress={() => console.log("Logout pressed")}
+                    onPress={logout}
                 />  
             </View>
         </SafeAreaView>
