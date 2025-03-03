@@ -1,35 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+
+import trackingsApi from '../api/trackings';
+
 import Card from '../components/Card';
 import colors from '../config/colors';
 import { ImageBackground } from 'react-native';
 
-const trackingData = [
-    {
-        id: 1,
-        data: "Heart Rate",
-        value: "80 bpm",
-        lastUpdated: "2024-10-10",
-        //image: require("../assets/heartbeat_monitor.webp")
-        icon: "heart-pulse",
-    },
-    {
-        id: 2,
-        data: "Steps Taken",
-        value: 1500,
-        lastUpdated: "2024-10-10",
-        icon: "foot-print",
-    },
-    {
-        id: 3,
-        data: "Elevation Gain",
-        value: 40,
-        lastUpdated: "2024-10-10",
-        icon: "stairs-up",
-    }
-];
 
 function Home(props) {
+    const [trackingData, setTrackings] = useState([]);
+
+    useEffect(() => {
+        loadTrackings();
+    }, [])
+
+    const loadTrackings = async () => {
+        console.log("Fetching tracking data...");
+    
+        const response = await trackingsApi.getTrackings();
+        
+        console.log("Response Status:", response.status);
+        console.log("Response Problem:", response.problem);
+        console.log("Full Response:", response);
+    
+        if (!response.ok) {
+            console.log("❌ API Request Failed!");
+            return;
+        }
+    
+        setTrackings(response.data);
+        console.log("✅ Data Fetched Successfully:", response.data);
+    };
+    
+    
+    
+
     return (
         <View style={styles.container}>
             <ImageBackground source={require("../assets/heartbeat_monitor.webp")} style={styles.upperContainer}>
