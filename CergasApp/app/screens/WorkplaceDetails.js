@@ -1,11 +1,11 @@
 import React, {useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, ScrollView, Button, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Button, Alert, FlatList } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MapView, { Marker, Circle } from "react-native-maps";
-import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
 import Slider from "@react-native-community/slider";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { db, auth } from "../api/firebase/firebaseConfig"; 
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 
 const daysOfWeek = [
     { id: 0, name: "Sun" },
@@ -17,8 +17,29 @@ const daysOfWeek = [
     { id: 6, name: "Sat" },
 ];
 
-function WorkplaceDetails(props) {
+function WorkplaceDetails({ navigation }) {
+    const [workplaces, setWorkplaces] = useState([]);
 
+    useEffect(() => {
+        const fetchUserWorkplaces = async () => {
+            try {
+                if (!auth.currentUser) return; // Ensure user is logged in
+        
+                const q = query(collection(db, "workplaces"), where("userId", "==", auth.currentUser.uid));
+                const querySnapshot = await getDocs(q);
+                const userWorkplaces = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+                }));
+                setWorkplaces(userWorkplaces);
+            } catch (error) {
+                console.error("Error fetching user workplaces:", error);
+            }
+        };
+        fetchUserWorkplaces();
+    }, []);
+
+    
     // Day Selection
     const [selectedDays, setSelectedDays] = useState([]);
     const toggleDay = (day) => {
@@ -60,8 +81,10 @@ function WorkplaceDetails(props) {
         latitudeDelta: 0.005,
         longitudeDelta: 0.005
     });
+    
     const [radius, setRadius] = useState(100);
     const mapRef = useRef(null); 
+    
     const handleLocationSelect = (data, details) => {
         const location = details.geometry.location;
         setSelectedLocation({
@@ -118,10 +141,72 @@ function WorkplaceDetails(props) {
         }
     };
     
-    // Automatically fetch location on mount
-    //useEffect(() => {
-    //    getCurrentLocation();
-    //}, []);
+    // Automatically fetch workplace details on mount
+    useEffect(() => {
+        const fetchUserWorkplaces = async () => {
+            try {
+                if (!auth.currentUser) return; // Ensure user is logged in
+        
+                const q = query(collection(db, "workplaces"), where("userId", "==", auth.currentUser.uid));
+                const querySnapshot = await getDocs(q);
+    
+                if (!querySnapshot.empty) {
+                    const userWorkplace = querySnapshot.docs[0].data(); // Get first document
+    
+                    // Set the fetched values as initial state
+                    setSelectedDays(userWorkplace.selectedDays || []);
+                    setStartTime(new Date(userWorkplace.startTime) || new Date());
+                    setEndTime(new Date(userWorkplace.endTime) || new Date());
+                    setSelectedLocation(userWorkplace.location || {
+                        latitude: 53.46743878,
+                        longitude: -2.2340612,
+                        latitudeDelta: 0.005,
+                        longitudeDelta: 0.005
+                    });
+                    setRadius(userWorkplace.location.radius || 100);
+                }
+            } catch (error) {
+                console.error("Error fetching user workplaces:", error);
+            }
+        };
+    
+        fetchUserWorkplaces();
+    }, []);
+    
+
+    // Function to Save Workplace Details in Firestore
+    const saveWorkplaceDetails = async () => {
+        try {
+        if (!selectedDays.length) {
+            Alert.alert("Error", "Please select at least one working day.");
+            return;
+        }
+
+        if (!auth.currentUser) {
+            Alert.alert("Error", "User not logged in.");
+            return;
+        }
+
+        const docRef = await addDoc(collection(db, "workplaces"), {
+            userId: auth.currentUser.uid,
+            selectedDays,
+            startTime: new Date(startTime).toISOString(),
+            endTime: new Date(endTime).toISOString(),
+            location: {
+            latitude: selectedLocation.latitude,
+            longitude: selectedLocation.longitude,
+            radius,
+            },
+            createdAt: new Date().toISOString(),
+        });
+
+      Alert.alert("Success", "Workplace details saved successfully!");
+      navigation.goBack(); // Navigate back after saving
+    } catch (error) {
+      console.error("Error saving data:", error);
+      Alert.alert("Error", "Failed to save workplace details.");
+    }
+  };
 
     return (
         <ScrollView>
@@ -231,7 +316,24 @@ function WorkplaceDetails(props) {
                     />
                 </View>
             </View>
-        </View>             
+            <Button title="Save Workplace" onPress={saveWorkplaceDetails} />
+        </View>      
+        <View>
+            <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>Your Workplace Data</Text>
+            <FlatList
+                data={workplaces}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                <View style={{ marginBottom: 10 }}>
+                    <Text>📍 Location: {item.location.latitude}, {item.location.longitude}</Text>
+                    <Text>📅 Days: {item.selectedDays.join(", ")}</Text>
+                    <Text>🕒 Start: {new Date(item.startTime).toLocaleTimeString()}</Text>
+                    <Text>🕒 End: {new Date(item.endTime).toLocaleTimeString()}</Text>
+                    <Text>🛡 Radius: {item.location.radius} meters</Text>
+                </View>
+                )}
+            />
+        </View>
         </ScrollView>
         
     );
