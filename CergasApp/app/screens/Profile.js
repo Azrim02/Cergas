@@ -47,8 +47,8 @@ function Profile({ navigation }) {
         <SafeAreaView style={styles.container}>
             <View style={styles.profileContainer}>
                 <ListItem
-                    title={"Username"}
-                    subTitle={"Student"}
+                    title={user?.name}
+                    subTitle={user?.email}
                     image={require("../assets/profile_photo.jpeg")}
                 />
             </View>

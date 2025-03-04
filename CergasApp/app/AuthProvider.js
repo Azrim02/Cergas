@@ -11,12 +11,19 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen for authentication state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+      if (user) {
+        setUser({
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "User", // Extract and store displayName
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
-    return unsubscribe; // Cleanup listener
+    return unsubscribe;
   }, []);
 
   // Login function
@@ -34,6 +41,13 @@ export const AuthProvider = ({ children }) => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await updateProfile(user, {displayName:name});
+      
+      // Update user state with the new name
+      setUser({
+        uid: user.uid,
+        email: user.email,
+        name: name,
+      });
     } catch (error) {
       throw error; // Handle errors in Register screen
     }
@@ -43,13 +57,14 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await signOut(auth);
+      setUser(null);
     } catch (error) {
       console.error("Logout Error:", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

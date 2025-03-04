@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { useAuth } from '../AuthProvider';
 
 import trackingsApi from '../api/trackings';
 
@@ -9,7 +10,8 @@ import { ImageBackground } from 'react-native';
 
 
 function Home(props) {
-    const [trackingData, setTrackings] = useState([]);
+    const { user, logout } = useAuth();
+    const [trackings, setTrackings] = useState([]);
 
     useEffect(() => {
         loadTrackings();
@@ -39,13 +41,13 @@ function Home(props) {
     return (
         <View style={styles.container}>
             <ImageBackground source={require("../assets/heartbeat_monitor.webp")} style={styles.upperContainer}>
-                    <Text style={styles.greetText}> Hello, USERNAME </Text>
+                    <Text style={styles.greetText}> Hello, {user?.name} </Text>
             </ImageBackground>
             <View style={styles.lowerContainer}>
                 <FlatList
                     style={styles.listContainer}
-                    data={trackingData}
-                    keyExtractor={trackingData => trackingData.id.toString()}
+                    data={trackings}
+                    keyExtractor={trackings => trackings.id.toString()}
                     renderItem={({ item }) => (
                         <Card
                             title={item.data}
