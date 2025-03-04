@@ -19,7 +19,6 @@ function TabNavigator(props) {
                     tabBarIcon: ({color, size}) => 
                     <MaterialCommunityIcons name="home" color={color} size={size}/>
                 }}
-                
             />
             <Tab.Screen 
                 name={routes.PROFILE} 

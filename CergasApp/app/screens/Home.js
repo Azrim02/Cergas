@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
+import { useWorkplace } from '../context/WorkplaceContext';
 
 import trackingsApi from '../api/trackings';
 
@@ -8,10 +9,38 @@ import Card from '../components/Card';
 import colors from '../config/colors';
 import { ImageBackground } from 'react-native';
 
+const trackingData = [
+    {
+        id: 1,
+        data: "Heart Rate",
+        value: "80 bpm",
+        lastUpdated: "2024-10-10",
+        //image: require("../assets/heartbeat_monitor.webp")
+        icon: "heart-pulse",
+    },
+    {
+        id: 2,
+        data: "Steps Taken",
+        value: 1500,
+        lastUpdated: "2024-10-10",
+        icon: "foot-print",
+    },
+    {
+        id: 3,
+        data: "Elevation Gain",
+        value: 40,
+        lastUpdated: "2024-10-10",
+        icon: "stairs-up",
+    }
+];
 
 function Home(props) {
     const { user, logout } = useAuth();
     const [trackings, setTrackings] = useState([]);
+    const { workplaceData, loading } = useWorkplace();
+
+    console.log("🚀 Authenticated User:", user); // Debug auth
+    console.log("🚀 Workplace Data:", workplaceData); // Debug context data
 
     useEffect(() => {
         loadTrackings();

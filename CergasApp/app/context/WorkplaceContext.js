@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { db, auth } from "../api/firebase/firebaseConfig";
-import { collection, getDocs, query, where, addDoc, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, query, where, addDoc, onSnapshot, doc, setDoc } from "firebase/firestore";
+
 
 // Create Context
 const WorkplaceContext = createContext();
@@ -49,14 +50,17 @@ export const WorkplaceProvider = ({ children }) => {
     const saveWorkplaceDetails = async (data) => {
         if (!user) return;
         try {
-            await addDoc(collection(db, "workplaces"), {
-                userId: user.uid,
+            const userWorkplaceRef = doc(db, "workplaces", user.uid); // Use user's UID as document ID
+            await setDoc(userWorkplaceRef, {
+                userId: user.uid, 
                 ...data,
                 createdAt: new Date().toISOString(),
             });
+    
             setWorkplaceData(data); // Update local state
+            console.log("✅ Workplace details saved successfully!");
         } catch (error) {
-            console.error("Error saving workplace details:", error);
+            console.error("❌ Error saving workplace details:", error);
         }
     };
 
