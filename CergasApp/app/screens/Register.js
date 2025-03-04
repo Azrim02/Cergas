@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, View, Image, Text, ActivityIndicator } from "react-native";
 import * as Yup from "yup";
-import { useAuth } from "../AuthProvider"; // Import Auth Context
+import { useAuth } from "../api/firebase/AuthProvider"
 
 import colors from "../config/colors";
 import AppForm from "../components/form/AppForm";

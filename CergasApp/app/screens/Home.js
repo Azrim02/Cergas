@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { useAuth } from '../AuthProvider';
+import { useAuth } from '../api/firebase/AuthProvider';
 
 import trackingsApi from '../api/trackings';
 

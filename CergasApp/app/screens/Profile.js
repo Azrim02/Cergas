@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, SafeAreaView, FlatList } from 'react-native';
-import { useAuth } from "../AuthProvider"; // Import Auth Context
+import { useAuth } from "../api/firebase/AuthProvider"
 
 import colors from '../config/colors';
 import Routes from '../navigation/routes';
