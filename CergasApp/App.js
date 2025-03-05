@@ -1,8 +1,10 @@
 import React from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { useAuth, AuthProvider } from "./app/api/firebase/AuthProvider"; // Import Auth Context
-import { WorkplaceProvider } from "./app/context/WorkplaceContext"; // Import Workplace Context
+import { useAuth, AuthProvider } from "./app/api/firebase/AuthProvider"; 
+
+import { WorkplaceProvider } from "./app/context/WorkplaceContext";  // Workplace context
+import { LocationProvider } from "./app/context/LocationContext"; // Location context
 
 import TabNavigator from "./app/navigation/TabNavigator"; // Main App
 import AuthNavigator from "./app/navigation/AuthNavigator"; // Login/Register
@@ -21,9 +23,12 @@ function MainApp() {
   return (
     <NavigationContainer>
       {user ? (
-        <WorkplaceProvider> 
-          <TabNavigator />
-        </WorkplaceProvider>
+        <LocationProvider> 
+          <WorkplaceProvider> 
+            <TabNavigator />
+          </WorkplaceProvider>
+        </LocationProvider>
+        
       ) : (
         <AuthNavigator />
       )}

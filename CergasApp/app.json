@@ -14,12 +14,19 @@
     },
     "ios": {
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby places."
+        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby places.",
+        "NSLocationAlwaysUsageDescription": "We need your location to track your movement in the background.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires background location access to monitor your movement even when the app is closed."
       },
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["ACCESS_FINE_LOCATION"],
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "FOREGROUND_SERVICE",
+        "ACCESS_BACKGROUND_LOCATION"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
 import { useWorkplace } from '../context/WorkplaceContext';
+import { useLocation } from '../context/LocationContext';
 
 import trackingsApi from '../api/trackings';
 
@@ -38,9 +39,11 @@ function Home(props) {
     const { user, logout } = useAuth();
     const [trackings, setTrackings] = useState([]);
     const { workplaceData, loading } = useWorkplace();
+    const { location } = useLocation();
 
     console.log("🚀 Authenticated User:", user); // Debug auth
     console.log("🚀 Workplace Data:", workplaceData); // Debug context data
+    console.log("🚀 Location Data:", location); // Debug context data
 
     useEffect(() => {
         loadTrackings();
@@ -50,10 +53,9 @@ function Home(props) {
         console.log("Fetching tracking data...");
     
         const response = await trackingsApi.getTrackings();
-        
-        console.log("Response Status:", response.status);
-        console.log("Response Problem:", response.problem);
-        console.log("Full Response:", response);
+        //console.log("Response Status:", response.status);
+        //console.log("Response Problem:", response.problem);
+        //console.log("Full Response:", response);
     
         if (!response.ok) {
             console.log("❌ API Request Failed!");

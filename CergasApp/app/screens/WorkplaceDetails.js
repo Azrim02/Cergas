@@ -1,12 +1,13 @@
 import React, {useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Button, Alert, FlatList } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Button, Alert } from 'react-native';
 import MapView, { Marker, Circle } from "react-native-maps";
 import * as Location from 'expo-location';
-import Slider from "@react-native-community/slider";
-import { db, auth } from "../api/firebase/firebaseConfig"; 
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+
+import { useCurrentLocation } from '../hooks/useCurrentLocation';
 import { useWorkplace } from '../context/WorkplaceContext';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Slider from "@react-native-community/slider";
 
 const daysOfWeek = [
     { id: 0, name: "Sun" },
@@ -19,20 +20,16 @@ const daysOfWeek = [
 ];
 
 function WorkplaceDetails({ navigation }) {
-    const { workplaceData, loading, saveWorkplaceDetails } = useWorkplace();
-    console.log("🚀 Workplace Data:", workplaceData); // Debug context data
+    // USER DATA
+    // Fetched workplace data from firebase
+    const { workplaceData, saveWorkplaceDetails } = useWorkplace();
 
-    // Day Selection
+    // DEVICE DATA
+    const { currentLocation } = useCurrentLocation();
+    
+    // LOCAL DATA
+    // Date-time variables
     const [selectedDays, setSelectedDays] = useState([]);
-    const toggleDay = (day) => {
-        setSelectedDays((prevDays) =>
-        prevDays.includes(day)
-            ? prevDays.filter((d) => d !== day)
-            : [...prevDays, day]
-        );
-    };
-
-    // Time Selection
     const [startTime, setStartTime] = useState(() => {
         let date = new Date();
         date.setHours(9, 0, 0, 0); // 09:00:00.000
@@ -43,6 +40,29 @@ function WorkplaceDetails({ navigation }) {
         date.setHours(17, 0, 0, 0); // 17:00:00.000
         return date;
     });
+
+    // Location Variable
+    const [selectedLocation, setSelectedLocation] = useState({
+        latitude: 53.46743878,
+        longitude: -2.2340612,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+    });
+    
+    const [radius, setRadius] = useState(100);
+    const mapRef = useRef(null); 
+
+    // Debug print
+    console.log("🚀 Workplace Data:", workplaceData); // Debug context data
+
+    const toggleDay = (day) => {
+        setSelectedDays((prevDays) =>
+        prevDays.includes(day)
+            ? prevDays.filter((d) => d !== day)
+            : [...prevDays, day]
+        );
+    };
+
     const onChangeStartTime = (event, selectedTime) => {
         //setShow(false); // Hide the picker after selection
         if (selectedTime) {
@@ -56,55 +76,35 @@ function WorkplaceDetails({ navigation }) {
         }
     };
 
-    // Location Selection
-    const [selectedLocation, setSelectedLocation] = useState({
-        latitude: 53.46743878,
-        longitude: -2.2340612,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005
-    });
+        
+    // Function to get Location, set location and fill into the map UI
+    const getCurrentLocation = () => {
+        if (!currentLocation) {
+            Alert.alert("Error", "Location not available. Please enable location services.");
+            return;
+        }
     
-    const [radius, setRadius] = useState(100);
-    const mapRef = useRef(null); 
+        const { latitude, longitude } = currentLocation;
     
+        // Update state
+        setSelectedLocation({
+            latitude,
+            longitude,
+            latitudeDelta: 0.005, // Zoom level
+            longitudeDelta: 0.005,
+        });
     
-    const [errorMsg, setErrorMsg] = useState(null);
-    // Function to request permission and fetch location
-    const getCurrentLocation = async () => {
-        try {
-            // Request permission
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                setErrorMsg("Permission to access location was denied");
-                Alert.alert("Permission Denied", "Please enable location services.");
-                return;
-            }
-    
-            // Fetch current location
-            let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-            const { latitude, longitude } = location.coords;
-    
-            // Update state
-            setSelectedLocation({
+        // Animate the map to the new location
+        if (mapRef.current) {
+            mapRef.current.animateToRegion({
                 latitude,
                 longitude,
-                latitudeDelta: 0.01, // Zoom level
-                longitudeDelta: 0.01,
-            });
-    
-            // Animate the map to the new location
-            if (mapRef.current) {
-                mapRef.current.animateToRegion({
-                    latitude,
-                    longitude,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                }, 1000); // 1-second animation
-            }
-        } catch (error) {
-            console.log("Location error:", error);
-            setErrorMsg("Error fetching location");
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+            }, 1000); // 1-second animation
         }
+    
+        console.log("📍 Updated Selected Location:", currentLocation);
     };
     
 
@@ -150,6 +150,17 @@ function WorkplaceDetails({ navigation }) {
             setRadius(workplaceData.location?.radius || 100);
         }
     }, [workplaceData]);
+
+    useEffect(() => {
+        if (mapRef.current && selectedLocation) {
+            mapRef.current.animateToRegion({
+                latitude: selectedLocation.latitude,
+                longitude: selectedLocation.longitude,
+                latitudeDelta: 0.005, // More zoomed-in
+                longitudeDelta: 0.005,
+            }, 1000); // 1-second animation
+        }
+    }, [selectedLocation]);
 
     return (
         <ScrollView>
