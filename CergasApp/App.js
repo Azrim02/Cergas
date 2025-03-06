@@ -31,7 +31,6 @@ function MainApp() {
             </CurrentProvider>
           </WorkplaceProvider>
         </LocationProvider>
-        
       ) : (
         <AuthNavigator />
       )}

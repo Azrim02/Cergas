@@ -139,8 +139,8 @@ function WorkplaceDetails({ navigation }) {
     useEffect(() => {
         if (workplaceData) {
             setSelectedDays(workplaceData.selectedDays || []);
-            setStartTime(new Date(workplaceData.startTime) || new Date());
-            setEndTime(new Date(workplaceData.endTime) || new Date());
+            setStartTime(new Date(workplaceData.startTime));
+            setEndTime(new Date(workplaceData.endTime));
             setSelectedLocation(workplaceData.location || {
                 latitude: 53.46743878,
                 longitude: -2.2340612,
@@ -149,9 +149,7 @@ function WorkplaceDetails({ navigation }) {
             });
             setRadius(workplaceData.location?.radius || 100);
         }
-    }, [workplaceData]);
-
-    useEffect(() => {
+        console.log("mapref")
         if (mapRef.current && selectedLocation) {
             mapRef.current.animateToRegion({
                 latitude: selectedLocation.latitude,
@@ -160,7 +158,21 @@ function WorkplaceDetails({ navigation }) {
                 longitudeDelta: 0.005,
             }, 1000); // 1-second animation
         }
-    }, [selectedLocation]);
+    }, [workplaceData]);
+
+    useEffect(() => {
+        if (mapRef.current && selectedLocation) {
+            mapRef.current.animateToRegion(
+                {
+                    latitude: selectedLocation.latitude,
+                    longitude: selectedLocation.longitude,
+                    latitudeDelta: 0.005,
+                    longitudeDelta: 0.005,
+                },
+                1000 // 1-second animation
+            );
+        }
+    }, [selectedLocation]); // Runs when `selectedLocation` changes
 
     return (
         <ScrollView>

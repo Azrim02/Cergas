@@ -39,11 +39,11 @@ function Home(props) {
     const { user } = useAuth();
     const [trackings, setTrackings] = useState([]);
     const { workplaceData, loading } = useWorkplace();
-    const { location } = useLocation();
-    const { distanceToWorkplace, isAtWork } = useCurrent();
-    
+    const { distanceToWorkplace, isAtWork, isWithinWorkHours } = useCurrent();
+    var isWorking = isAtWork && isWithinWorkHours;
+
     console.log("🚀 Authenticated User:", user); // Debug auth
-    // console.log("🚀 Workplace Data:", workplaceData); // Debug context data
+    console.log("🚀 Workplace Data:", workplaceData); // Debug context data
     // console.log("🚀 Location Data:", location); // Debug context data
     
 
@@ -61,6 +61,8 @@ function Home(props) {
 
     console.log("Distance to workplace:", distanceToWorkplace);
     console.log("Is user at workplace?", isAtWork);
+    console.log("Is user within working hours?", isWithinWorkHours)
+    console.log("Is user working ?", isWorking);
     
     useEffect(() => {
         loadTrackings();
