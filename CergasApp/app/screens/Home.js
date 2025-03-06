@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
 import { useWorkplace } from '../context/WorkplaceContext';
 import { useLocation } from '../context/LocationContext';
-import { useCurrent } from '../context/CurrentContext';
 import trackingsApi from '../api/trackings';
 
 import Card from '../components/Card';
@@ -39,8 +38,8 @@ function Home(props) {
     const { user } = useAuth();
     const [trackings, setTrackings] = useState([]);
     const { workplaceData, loading } = useWorkplace();
-    const { distanceToWorkplace, isAtWork, isWithinWorkHours } = useCurrent();
-    var isWorking = isAtWork && isWithinWorkHours;
+    // const { distanceToWorkplace, isAtWork, isWithinWorkHours } = useCurrent();
+    // var isWorking = isAtWork && isWithinWorkHours;
 
     console.log("🚀 Authenticated User:", user); // Debug auth
     console.log("🚀 Workplace Data:", workplaceData); // Debug context data
@@ -59,10 +58,10 @@ function Home(props) {
     //     console.log("⚠️ Location data is not available yet.");
     // }
 
-    console.log("Distance to workplace:", distanceToWorkplace);
-    console.log("Is user at workplace?", isAtWork);
-    console.log("Is user within working hours?", isWithinWorkHours)
-    console.log("Is user working ?", isWorking);
+    // console.log("Distance to workplace:", distanceToWorkplace);
+    // console.log("Is user at workplace?", isAtWork);
+    // console.log("Is user within working hours?", isWithinWorkHours)
+    // console.log("Is user working ?", isWorking);
     
     useEffect(() => {
         loadTrackings();
@@ -82,7 +81,7 @@ function Home(props) {
         }
     
         setTrackings(response.data);
-        console.log("✅ Data Fetched Successfully:", response.data);
+        //console.log("✅ Data Fetched Successfully:", response.data);
     };
     
     

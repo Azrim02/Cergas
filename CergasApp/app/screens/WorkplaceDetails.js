@@ -21,10 +21,10 @@ const daysOfWeek = [
 function WorkplaceDetails({ navigation }) {
     // USER DATA
     // Fetched workplace data from firebase
-    const { workplaceData, saveWorkplaceDetails } = useWorkplace();
+    const { workplaceData, saveWorkplaceDetails, loading: workplaceLoading } = useWorkplace();
 
     // DEVICE DATA
-    const { currentLocation } = useCurrentLocation();
+    const { currentLocation, loading: locationLoading } = useCurrentLocation();
     
     // LOCAL DATA
     // Date-time variables
@@ -175,7 +175,7 @@ function WorkplaceDetails({ navigation }) {
                 1000 // 1-second animation
             );
         }
-    }, [selectedLocation]); // Runs when `selectedLocation` changes
+    }, []);
 
     return (
         <ScrollView>
