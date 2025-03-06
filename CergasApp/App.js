@@ -3,9 +3,8 @@ import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { useAuth, AuthProvider } from "./app/api/firebase/AuthProvider"; 
 
-import { WorkplaceProvider } from "./app/context/WorkplaceContext";  // Workplace context
-import { LocationProvider } from "./app/context/LocationContext"; // Location context
-// import { CurrentProvider } from "./app/context/CurrentContext";
+import { WorkplaceProvider } from "./app/context/WorkplaceProvider";  // Workplace context
+import { LocationProvider } from "./app/context/LocationProvider"; // Location context
 
 import TabNavigator from "./app/navigation/TabNavigator"; // Main App
 import AuthNavigator from "./app/navigation/AuthNavigator"; // Login/Register

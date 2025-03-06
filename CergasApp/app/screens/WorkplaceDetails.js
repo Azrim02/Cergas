@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Button, Alert } f
 import MapView, { Marker, Circle } from "react-native-maps";
 
 import { useCurrentLocation } from '../hooks/useCurrentLocation';
-import { useWorkplace } from '../context/WorkplaceContext';
+import { useWorkplace } from '../context/WorkplaceProvider';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from "@react-native-community/slider";

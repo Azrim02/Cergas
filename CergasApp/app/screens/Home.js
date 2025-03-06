@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
-import { useWorkplace } from '../context/WorkplaceContext';
-import { useLocation } from '../context/LocationContext';
+import { useWorkplace } from '../context/WorkplaceProvider';
+import { useLocation } from '../context/LocationProvider';
 import trackingsApi from '../api/trackings';
 
 import Card from '../components/Card';
