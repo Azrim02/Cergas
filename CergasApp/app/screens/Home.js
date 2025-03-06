@@ -97,7 +97,9 @@ function Home(props) {
             <ImageBackground source={require("../assets/heartbeat_monitor.webp")} style={styles.upperContainer}>
                     <Text style={styles.greetText}> Hello, {user?.name} </Text>
                     <Text style={styles.isAtWorkText}>
-                        {isAtWork ? "You're at work!" : "You're not at work..."}
+                        {isAtWork 
+                            ? `You are on site, ${isWithinWorkHours && isWorking ? "and you are working!" : "but you are not in your working hours."}`
+                            : "You're not at work..."}
                     </Text>
 
             </ImageBackground>
@@ -132,7 +134,9 @@ const styles = StyleSheet.create({
     },
     upperContainer:{
         flex:1,
-        backgroundColor: colors.lightgrey,        
+        backgroundColor: colors.lightgrey,    
+        flexDirection: 'column',
+        justifyContent: 'flex-end',    
     },
     listContainer:{
         padding:40,
@@ -149,6 +153,7 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 10,
         padding: 20,
+        paddingBottom:30,
     },
     isAtWorkText:{
         color: colors.white,
@@ -160,7 +165,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 1,
         shadowRadius: 10,
         elevation: 10,
-        padding:20,
+        paddingHorizontal:20,
+        paddingBottom:10,
     },
     lowerContainer:{
         //margin:20,
