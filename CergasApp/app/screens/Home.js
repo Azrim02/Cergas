@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
-import { useWorkplace } from '../context/WorkplaceProvider';
-import { useLocation } from '../context/LocationProvider';
+
+import { useIsWorking } from '../context/IsWorkingProvider';
+
 import trackingsApi from '../api/trackings';
 
 import Card from '../components/Card';
@@ -37,12 +38,11 @@ const trackingData = [
 function Home(props) {
     const { user } = useAuth();
     const [trackings, setTrackings] = useState([]);
-    const { workplaceData, loading } = useWorkplace();
-    // const { distanceToWorkplace, isAtWork, isWithinWorkHours } = useCurrent();
-    // var isWorking = isAtWork && isWithinWorkHours;
+    const { isAtWork, isWithinWorkHours, distanceToWorkplace } = useIsWorking();
+    var isWorking = isAtWork && isWithinWorkHours;
 
-    console.log("🚀 Authenticated User:", user); // Debug auth
-    console.log("🚀 Workplace Data:", workplaceData); // Debug context data
+    //onsole.log("🚀 Authenticated User:", user); // Debug auth
+    //console.log("🚀 Workplace Data:", workplaceData); // Debug context data
     // console.log("🚀 Location Data:", location); // Debug context data
     
 
@@ -58,11 +58,16 @@ function Home(props) {
     //     console.log("⚠️ Location data is not available yet.");
     // }
 
-    // console.log("Distance to workplace:", distanceToWorkplace);
-    // console.log("Is user at workplace?", isAtWork);
-    // console.log("Is user within working hours?", isWithinWorkHours)
-    // console.log("Is user working ?", isWorking);
+    console.log("Distance to workplace:", distanceToWorkplace);
+    console.log("Is user at workplace?", isAtWork);
+    console.log("Is user within working hours?", isWithinWorkHours)
+    console.log("Is user working ?", isWorking);
     
+    // Should dynamically change isWorking whenever distance changes
+    useEffect(() =>{
+        isWorking = isAtWork && isWithinWorkHours;
+    }, [distanceToWorkplace])
+
     useEffect(() => {
         loadTrackings();
     }, [])
@@ -91,6 +96,10 @@ function Home(props) {
         <View style={styles.container}>
             <ImageBackground source={require("../assets/heartbeat_monitor.webp")} style={styles.upperContainer}>
                     <Text style={styles.greetText}> Hello, {user?.name} </Text>
+                    <Text style={styles.isAtWorkText}>
+                        {isAtWork ? "You're at work!" : "You're not at work..."}
+                    </Text>
+
             </ImageBackground>
             <View style={styles.lowerContainer}>
                 <FlatList
@@ -108,8 +117,8 @@ function Home(props) {
                         />
                     )}
                 />
-
             </View>
+            <Text>distance: {distanceToWorkplace}</Text>
         </View>
     );
 }
@@ -133,13 +142,25 @@ const styles = StyleSheet.create({
         fontSize: 30,
         fontWeight: 'bold',
         textAlign: 'left',
-        marginTop: 100,
+        marginTop: 50,
         shadowColor: colors.black,
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 1,
         shadowRadius: 10,
         elevation: 10,
         padding: 20,
+    },
+    isAtWorkText:{
+        color: colors.white,
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'left',
+        shadowColor: colors.black,
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 1,
+        shadowRadius: 10,
+        elevation: 10,
+        padding:20,
     },
     lowerContainer:{
         //margin:20,
