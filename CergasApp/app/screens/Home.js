@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
 import { useWorkplace } from '../context/WorkplaceContext';
 import { useLocation } from '../context/LocationContext';
-
+import { useCurrent } from '../context/CurrentContext';
 import trackingsApi from '../api/trackings';
 
 import Card from '../components/Card';
@@ -36,15 +36,32 @@ const trackingData = [
 ];
 
 function Home(props) {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const [trackings, setTrackings] = useState([]);
     const { workplaceData, loading } = useWorkplace();
     const { location } = useLocation();
-
+    const { distanceToWorkplace, isAtWork } = useCurrent();
+    
     console.log("🚀 Authenticated User:", user); // Debug auth
-    console.log("🚀 Workplace Data:", workplaceData); // Debug context data
-    console.log("🚀 Location Data:", location); // Debug context data
+    // console.log("🚀 Workplace Data:", workplaceData); // Debug context data
+    // console.log("🚀 Location Data:", location); // Debug context data
+    
 
+    // if (workplaceData && workplaceData.location) {
+    //     console.log("🚀 Workplace coordinate: (" + workplaceData.location.latitude + "," + workplaceData.location.longitude + ")"); // Debug context data
+    // } else {
+    //     console.log("⚠️ Workplace data is not available yet.");
+    // }
+
+    // if (location) {
+    //     console.log("🚀 Current location coordinate: (" + location.latitude + "," + location.longitude + ")"); // Debug context data
+    // } else {
+    //     console.log("⚠️ Location data is not available yet.");
+    // }
+
+    console.log("Distance to workplace:", distanceToWorkplace);
+    console.log("Is user at workplace?", isAtWork);
+    
     useEffect(() => {
         loadTrackings();
     }, [])

@@ -5,6 +5,7 @@ import { useAuth, AuthProvider } from "./app/api/firebase/AuthProvider";
 
 import { WorkplaceProvider } from "./app/context/WorkplaceContext";  // Workplace context
 import { LocationProvider } from "./app/context/LocationContext"; // Location context
+import { CurrentProvider } from "./app/context/CurrentContext";
 
 import TabNavigator from "./app/navigation/TabNavigator"; // Main App
 import AuthNavigator from "./app/navigation/AuthNavigator"; // Login/Register
@@ -25,7 +26,9 @@ function MainApp() {
       {user ? (
         <LocationProvider> 
           <WorkplaceProvider> 
-            <TabNavigator />
+            <CurrentProvider>
+              <TabNavigator />
+            </CurrentProvider>
           </WorkplaceProvider>
         </LocationProvider>
         
