@@ -1,7 +1,6 @@
 import React, {useState, useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Button, Alert } from 'react-native';
 import MapView, { Marker, Circle } from "react-native-maps";
-import * as Location from 'expo-location';
 
 import { useCurrentLocation } from '../hooks/useCurrentLocation';
 import { useWorkplace } from '../context/WorkplaceContext';
@@ -141,24 +140,28 @@ function WorkplaceDetails({ navigation }) {
             setSelectedDays(workplaceData.selectedDays || []);
             setStartTime(new Date(workplaceData.startTime));
             setEndTime(new Date(workplaceData.endTime));
-            setSelectedLocation(workplaceData.location || {
-                latitude: 53.46743878,
-                longitude: -2.2340612,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005
+            setSelectedLocation({
+                latitude: workplaceData.location.latitude,
+                longitude: workplaceData.location.longitude,
+                latitudeDelta: 0.005,  // 🔹 Zoom level: More zoomed in
+                longitudeDelta: 0.005,
             });
             setRadius(workplaceData.location?.radius || 100);
-        }
-        console.log("mapref")
-        if (mapRef.current && selectedLocation) {
-            mapRef.current.animateToRegion({
-                latitude: selectedLocation.latitude,
-                longitude: selectedLocation.longitude,
-                latitudeDelta: 0.005, // More zoomed-in
-                longitudeDelta: 0.005,
-            }, 1000); // 1-second animation
+    
+            console.log("✅ Updated workplace data:", workplaceData);
+    
+            // 🔹 Ensure the map zooms to the correct region when data is available
+            if (mapRef.current) {
+                mapRef.current.animateToRegion({
+                    latitude: workplaceData.location.latitude,
+                    longitude: workplaceData.location.longitude,
+                    latitudeDelta: 0.005,  // Adjust zoom level
+                    longitudeDelta: 0.005,
+                }, 1000);
+            }
         }
     }, [workplaceData]);
+    
 
     useEffect(() => {
         if (mapRef.current && selectedLocation) {
@@ -232,6 +235,7 @@ function WorkplaceDetails({ navigation }) {
                     ref={mapRef}
                     style={styles.map}
                     initialRegion={selectedLocation}
+                    showsUserLocation={true}
                     onPress={(e) =>
                     setSelectedLocation({
                         ...e.nativeEvent.coordinate,
