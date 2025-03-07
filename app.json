@@ -18,7 +18,8 @@
         "NSLocationAlwaysUsageDescription": "We need your location to track your movement in the background.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires background location access to monitor your movement even when the app is closed."
       },
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mirzashariman.cergasapp"
     },
     "android": {
       "permissions": [
@@ -30,10 +31,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.mirzashariman.cergasapp"
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ba5a9340-7e58-427e-af23-06f1f499dd0e"
+      }
     }
   }
 }

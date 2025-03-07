@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Firebase Authentication should automatically use AsyncStorage for persistence in React Native
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser({
@@ -40,8 +41,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      await updateProfile(user, {displayName:name});
-      
+      await updateProfile(user, { displayName: name });
+
       // Update user state with the new name
       setUser({
         uid: user.uid,
@@ -51,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       throw error; // Handle errors in Register screen
     }
-  }
+  };
 
   // Logout function
   const logout = async () => {
