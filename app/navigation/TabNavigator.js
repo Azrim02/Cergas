@@ -4,7 +4,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Home from '../screens/Home';
 import routes from './routes';
-import { NavigationContainer } from '@react-navigation/native';
 import ProfileNavigator from './ProfileNavigator';
 
 const Tab = createBottomTabNavigator();

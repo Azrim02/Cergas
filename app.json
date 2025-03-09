@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "cergasapp",
     "name": "CergasApp",
     "slug": "CergasApp",
     "version": "1.0.0",
@@ -16,7 +17,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby places.",
         "NSLocationAlwaysUsageDescription": "We need your location to track your movement in the background.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires background location access to monitor your movement even when the app is closed."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app requires background location access to monitor your movement even when the app is closed.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "supportsTablet": true,
       "bundleIdentifier": "com.mirzashariman.cergasapp"
@@ -41,6 +43,7 @@
       "eas": {
         "projectId": "ba5a9340-7e58-427e-af23-06f1f499dd0e"
       }
-    }
+    },
+    "owner": "azrim02"
   }
 }

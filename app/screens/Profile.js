@@ -15,7 +15,7 @@ const list = [
             name: "heart-pulse",
             //backgroundColor: colors.primary,
         },
-        //targetScreen: Routes.USER_LISTINGS,
+        targetScreen: Routes.LINK_HEALTH,
         data: { userListings: true },
     },
     {

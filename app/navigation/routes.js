@@ -5,7 +5,7 @@ const routes = Object.freeze({
     REGISTER: 'Register',
     WELCOME: 'Welcome',
     WORKPLACE_DETAILS: 'Workplace Details',
-
+    LINK_HEALTH: 'Link Health',
 })
 
 export default routes;
