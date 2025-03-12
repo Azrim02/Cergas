@@ -1,7 +1,9 @@
 {
   "expo": {
     "scheme": "cergasapp",
-    "platforms": ["android"],
+    "platforms": [
+      "android"
+    ],
     "name": "CergasApp",
     "slug": "CergasApp",
     "version": "1.0.0",
@@ -54,6 +56,10 @@
         "measurementId": "G-0CK24SR4SP"
       }
     },
-    "owner": "azrim02"
+    "owner": "azrim02",
+    "plugins": [
+      "expo-secure-store",
+      "expo-router"
+    ]
   }
 }
