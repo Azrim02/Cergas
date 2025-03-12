@@ -3,12 +3,12 @@ import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { useAuth, AuthProvider } from "./app/api/firebase/AuthProvider"; 
 
-import { LocationProvider } from "./app/context/LocationProvider"; // Location context
-import { WorkplaceProvider } from "./app/context/WorkplaceProvider";  // Workplace context
+import { LocationProvider } from "./app/context/LocationProvider"; 
+import { WorkplaceProvider } from "./app/context/WorkplaceProvider"; 
 import { IsWorkingProvider } from "./app/context/IsWorkingProvider";
 
-import TabNavigator from "./app/navigation/TabNavigator"; // Main App
-import AuthNavigator from "./app/navigation/AuthNavigator"; // Login/Register
+import TabNavigator from "./app/navigation/TabNavigator"; 
+import AuthNavigator from "./app/navigation/AuthNavigator"; 
 
 function MainApp() {
   const { user, loading } = useAuth();

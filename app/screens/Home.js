@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
-
 import { useIsWorking } from '../context/IsWorkingProvider';
+import HealthDataReader from '../components/HealthDataReader';
 
 import trackingsApi from '../api/trackings';
 
@@ -120,6 +120,7 @@ function Home(props) {
                     )}
                 />
             </View>
+            <HealthDataReader/>
             <Text>distance: {distanceToWorkplace}</Text>
         </View>
     );

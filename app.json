@@ -16,6 +16,11 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": ["eas-cli", "firebase", "react-native-dev-menu", "yup"]
+      }
+    },
     "ios": {
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "We need your location to show nearby places.",
@@ -31,7 +36,15 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "FOREGROUND_SERVICE",
-        "ACCESS_BACKGROUND_LOCATION"
+        "ACCESS_BACKGROUND_LOCATION",
+        "android.permission.health.READ_ACTIVE_CALORIES_BURNED",
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_DISTANCE",
+        "android.permission.health.READ_TOTAL_CALORIES_BURNED",
+        "android.permission.health.READ_HEART_RATE",
+        "android.permission.health.READ_BLOOD_PRESSURE",
+        "android.permission.health.READ_SLEEP",
+        "android.permission.health.READ_OXYGEN_SATURATION"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/adaptive-icon.png",
@@ -58,8 +71,17 @@
     },
     "owner": "azrim02",
     "plugins": [
-      "expo-secure-store",
-      "expo-router"
+      "expo-health-connect",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "minSdkVersion": 26
+          }
+        }
+      ]
     ]
   }
 }
