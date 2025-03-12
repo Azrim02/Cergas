@@ -10,7 +10,7 @@
     "orientation": "portrait",
     "icon": "./app/assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./app/assets/splash-icon.png",
       "resizeMode": "contain",
@@ -32,6 +32,11 @@
       "bundleIdentifier": "com.mirzashariman.cergasapp"
     },
     "android": {
+      "config": {
+        "googleMaps":{
+          "apikey":"AIzaSyC5kkMrNdy7OHNFPd7JocwUrodHQcYVQ74"
+        }
+      },
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",

@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
 import { useIsWorking } from '../context/IsWorkingProvider';
-import HealthDataReader from '../components/HealthDataReader';
 
-import trackingsApi from '../api/trackings';
+import useStepData from '../hooks/useStepData';
 
 import Card from '../components/Card';
 import colors from '../config/colors';
 import { ImageBackground } from 'react-native';
 
-const trackingData = [
+const trackingDataOld = [
     {
         id: 1,
         data: "Heart Rate",
@@ -37,15 +36,24 @@ const trackingData = [
 
 function Home(props) {
     const { user } = useAuth();
-    const [trackings, setTrackings] = useState([]);
+    const { steps, error, loading, fetchStepData } = useStepData();
     const { isAtWork, isWithinWorkHours, distanceToWorkplace } = useIsWorking();
     var isWorking = isAtWork && isWithinWorkHours;
 
-    //onsole.log("🚀 Authenticated User:", user); // Debug auth
-    //console.log("🚀 Workplace Data:", workplaceData); // Debug context data
+    const [trackingData, setTrackingData] = useState([
+        {
+            id: 1,
+            data: "Steps",
+            value: "Fetching...",
+            lastUpdated: null,
+            icon: "foot-print"
+        }
+    ]);
+
+    console.log("🚀 Authenticated User:", user); // Debug auth
+    // console.log("🚀 Workplace Data:", workplaceData); // Debug context data
     // console.log("🚀 Location Data:", location); // Debug context data
     
-
     // if (workplaceData && workplaceData.location) {
     //     console.log("🚀 Workplace coordinate: (" + workplaceData.location.latitude + "," + workplaceData.location.longitude + ")"); // Debug context data
     // } else {
@@ -67,30 +75,25 @@ function Home(props) {
     useEffect(() =>{
         isWorking = isAtWork && isWithinWorkHours;
     }, [distanceToWorkplace])
-
+    
     useEffect(() => {
-        loadTrackings();
-    }, [])
+        fetchStepData();
+    }, []);
 
-    const loadTrackings = async () => {
-        console.log("Fetching tracking data...");
-    
-        const response = await trackingsApi.getTrackings();
-        //console.log("Response Status:", response.status);
-        //console.log("Response Problem:", response.problem);
-        //console.log("Full Response:", response);
-    
-        if (!response.ok) {
-            console.log("❌ API Request Failed!");
-            return;
+    // Update step count in state when fetched
+    useEffect(() => {
+        if (!loading && !error) {
+            setTrackingData([
+                {
+                    id: 1,
+                    data: "Steps",
+                    value: steps, // Assign fetched steps
+                    lastUpdated: new Date().toLocaleTimeString(),
+                    icon: "foot-print"
+                }
+            ]);
         }
-    
-        setTrackings(response.data);
-        //console.log("✅ Data Fetched Successfully:", response.data);
-    };
-    
-    
-    
+    }, [steps, loading, error]);
 
     return (
         <View style={styles.container}>
@@ -106,8 +109,8 @@ function Home(props) {
             <View style={styles.lowerContainer}>
                 <FlatList
                     style={styles.listContainer}
-                    data={trackings}
-                    keyExtractor={trackings => trackings.id.toString()}
+                    data={trackingData}
+                    keyExtractor={trackingData => trackingData.id.toString()}
                     renderItem={({ item }) => (
                         <Card
                             title={item.data}
@@ -120,7 +123,6 @@ function Home(props) {
                     )}
                 />
             </View>
-            <HealthDataReader/>
             <Text>distance: {distanceToWorkplace}</Text>
         </View>
     );
