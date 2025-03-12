@@ -12,51 +12,52 @@ const HealthDataReader = () => {
 
     const fetchHealthData = async () => {
         try {
-        // Initialize Health Connect
-        const isInitialized = await initialize();
-        if (!isInitialized) {
-            setError('Failed to initialize Health Connect');
-            return;
-        }
+            console.log("Initializing Health Connect...");
+            const isInitialized = await initialize();
+            if (!isInitialized) {
+                setError('Failed to initialize Health Connect');
+                console.error("Failed to initialize Health Connect");
+                return;
+            }
 
-        // Request permissions
-        const grantedPermissions = await requestPermission([
-            { accessType: 'read', recordType: 'ActiveCaloriesBurned' },
-        ]);
-        if (!grantedPermissions) {
-            setError('Permission denied');
-            return;
-        }
+            console.log("Requesting permissions...");
+            const grantedPermissions = await requestPermission([
+                { accessType: 'read', recordType: 'Steps' },
+            ]);
+            if (!grantedPermissions) {
+                setError('Permission denied');
+                console.error("Permission denied");
+                return;
+            }
 
-        // Read records
-        const { records } = await readRecords('ActiveCaloriesBurned', {
-            timeRangeFilter: {
-            operator: 'between',
-            startTime: '2023-01-09T12:00:00.405Z',
-            endTime: '2023-01-09T23:53:15.405Z',
-            },
-        });
-        
-        setRecords(records);
+            console.log("Reading records...");
+            const { records } = await readRecords("Steps", {
+                timeRangeFilter: { operator: "after", startTime: "2025-01-01T00:00:00.000Z" }
+              });
+              
+            
+            console.log("Fetched Records:", records);
+            setRecords(records);
         } catch (err) {
-        setError(err.message);
+            setError(err.message);
+            console.error("Error fetching health data:", err);
         }
     };
 
     return (
         <View style={{ padding: 20 }}>
-        <Button title="Fetch Health Data" onPress={fetchHealthData} />
-        {error && <Text style={{ color: 'red' }}>{error}</Text>}
-        <FlatList
-            data={records}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-            <View style={{ marginVertical: 5 }}>
-                <Text>Calories Burned: {item.energy}</Text>
-                <Text>Time: {item.startTime}</Text>
-            </View>
-            )}
-        />
+            <Button title="Fetch Steps Data" onPress={fetchHealthData} />
+            {error && <Text style={{ color: 'red' }}>{error}</Text>}
+            <FlatList
+                data={records}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                    <View style={{ marginVertical: 5 }}>
+                        <Text>Steps: {item.count}</Text>
+                        <Text>Time: {item.startTime}</Text>
+                    </View>
+                )}
+            />
         </View>
     );
 };
