@@ -95,7 +95,7 @@ function Home(props) {
     return (
         <View style={styles.container}>
             <ImageBackground source={require("../assets/heartbeat_monitor.webp")} style={styles.upperContainer}>
-                    <Text style={styles.greetText}> Hello, {user?.name} </Text>
+                    <Text style={styles.greetText}> Hello there, {user?.name} </Text>
                     <Text style={styles.isAtWorkText}>
                         {isAtWork 
                             ? `You are on site, ${isWithinWorkHours && isWorking ? "and you are working!" : "but you are not in your working hours."}`

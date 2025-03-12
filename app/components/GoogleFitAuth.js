@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, View } from 'react-native';
+import { Button, View, Text } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import { firebase } from '../api/firebase/firebaseConfig';
 
@@ -11,10 +11,8 @@ const discovery = {
 };
 
 export default function GoogleFitAuth() {
-  const redirectUri = AuthSession.makeRedirectUri({ 
-    scheme: 'cergasapp',
-    useProxy: true,
-    projectNameForProxy: '@azrim02/CergasApp',
+  const redirectUri = AuthSession.makeRedirectUri({
+
   });
   console.log('Redirect URI:', redirectUri);
   
@@ -47,8 +45,9 @@ export default function GoogleFitAuth() {
       <Button
         disabled={!request}
         title="Connect to Google Fit"
-        onPress={() => promptAsync({useProxy:true})}
+        onPress={() => promptAsync()}
       />
+      <Text>redirectURI: {redirectUri}</Text>
     </View>
   );
 }

@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -24,7 +24,9 @@
     "apisauce": "^3.1.0",
     "eas-cli": "^15.0.14",
     "expo": "^52.0.0",
+    "expo-application": "~6.0.2",
     "expo-auth-session": "~6.0.3",
+    "expo-constants": "^17.0.8",
     "expo-crypto": "~14.0.2",
     "expo-dev-client": "^5.0.12",
     "expo-location": "~18.0.7",

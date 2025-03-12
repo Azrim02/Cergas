@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Image, ImageBackground, StyleSheet, View, Text, Animated } from 'react-native';
 
-
+import GoogleSignInButton from '../components/AuthComponents/GoogleSignInButton';
 import Routes from '../navigation/routes';
 import colors from '../config/colors';
 import AppButton from '../components/AppButton';
@@ -40,6 +40,7 @@ function Welcome({ navigation }) {
             <View style={styles.buttonContainer}>
                 <AppButton title="Login" onPress={() => navigation.navigate(Routes.LOGIN)} color="primary"/>
                 <AppButton title="Register" onPress={() => navigation.navigate(Routes.REGISTER)} color="secondary"/>
+                <GoogleSignInButton navigation={navigation}/>
             </View>
             
 

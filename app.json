@@ -1,13 +1,14 @@
 {
   "expo": {
     "scheme": "cergasapp",
+    "platforms": ["android"],
     "name": "CergasApp",
     "slug": "CergasApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./app/assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./app/assets/splash-icon.png",
       "resizeMode": "contain",
@@ -42,6 +43,15 @@
     "extra": {
       "eas": {
         "projectId": "ba5a9340-7e58-427e-af23-06f1f499dd0e"
+      },
+      "firebase": {
+        "apiKey": "AIzaSyDbj58lqSvjFEz4ODlThXyJqUR_kyxohQo",
+        "authDomain": "cergas-abf9a.firebaseapp.com",
+        "projectId": "cergas-abf9a",
+        "storageBucket": "cergas-abf9a.firebasestorage.app",
+        "messagingSenderId": "804422169817",
+        "appId": "1:804422169817:web:f59c3c5a68cdcc19227ac8",
+        "measurementId": "G-0CK24SR4SP"
       }
     },
     "owner": "azrim02"

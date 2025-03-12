@@ -3,7 +3,6 @@ import { SafeAreaView, StyleSheet, View, Image, Text } from "react-native";
 import * as Yup from "yup";
 import { useAuth } from "../api/firebase/AuthProvider"
 
-import GoogleSignIn from "../components/GoogleSignIn";
 import colors from "../config/colors";
 import AppForm from "../components/form/AppForm";
 import AppFormField from "../components/form/FormField";
