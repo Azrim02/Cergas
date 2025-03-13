@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import * as TaskManager from "expo-task-manager";
 import * as Location from "expo-location";
+import { useKeepAwake } from 'expo-keep-awake';
 
 const LOCATION_TRACKING = "background-location-task";
 const LocationContext = createContext();
@@ -26,6 +27,7 @@ export const LocationProviderInstance = {
 };
 
 export const LocationProvider = ({ children }) => {
+    useKeepAwake();
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [isTracking, setIsTracking] = useState(false);
@@ -93,14 +95,12 @@ export const LocationProvider = ({ children }) => {
             }
     
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
-                accuracy: Location.Accuracy.BestForNavigation,
-                timeInterval: 5000,
-                distanceInterval: 10,
-                deferredUpdatesInterval: 1000, 
+                accuracy: Location.Accuracy.Balanced,
+                timeInterval: 5000, 
+                distanceInterval: 10, 
+                pausesUpdatesAutomatically: false,
+                deferredUpdatesInterval: 15000, 
                 deferredUpdatesDistance: 20, 
-                pausesUpdatesAutomatically: false, 
-                activityType: Location.ActivityType.Fitness,
-                showsBackgroundLocationIndicator: true,
                 foregroundService: {
                     notificationTitle: "Tracking Location",
                     notificationBody: "Your location is being tracked in the background",
