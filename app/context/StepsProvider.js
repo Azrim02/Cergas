@@ -1,15 +1,15 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { useIsWorking } from "./IsWorkingProvider"; // Get work hour condition
+import { useIsWorking } from "./IsWorkingProvider"; 
 import { useWorkplace } from "./WorkplaceProvider";
-import useStepRangeData from "../hooks/useStepRangeData"; // Fetch steps in a range
+import useStepRangeData from "../hooks/useStepRangeData"; 
 
 const StepsContext = createContext();
 
 export const StepsProvider = ({ children }) => {
-    const { isWithinWorkHours } = useIsWorking(); // Work hour condition
+    const { isWithinWorkHours } = useIsWorking(); 
     const { workplaceData } = useWorkplace(); 
     const [workHourSteps, setWorkHourSteps] = useState(0);
-    const { steps, fetchStepsForTimeRanges } = useStepRangeData(); // Fetch step range
+    const { steps, stepEntries, fetchStepsForTimeRanges } = useStepRangeData(); // Fetch step range
     
     useEffect(() => {
         if (isWithinWorkHours && workplaceData?.startTime && workplaceData?.endTime) {
@@ -34,7 +34,7 @@ export const StepsProvider = ({ children }) => {
     }, [steps]);
 
     return (
-        <StepsContext.Provider value={{ workHourSteps }}>
+        <StepsContext.Provider value={{ workHourSteps, stepEntries }}>
             {children}
         </StepsContext.Provider>
     );
