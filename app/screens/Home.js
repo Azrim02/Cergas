@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useAuth } from '../api/firebase/AuthProvider';
 import { useIsWorking } from '../context/IsWorkingProvider';
-
-import useStepData from '../hooks/useStepData';
+import { useSteps } from '../context/StepsProvider';
 
 import Card from '../components/Card';
 import colors from '../config/colors';
@@ -36,10 +35,10 @@ const trackingDataOld = [
 
 function Home(props) {
     const { user } = useAuth();
-    const { steps, error, loading, fetchStepData } = useStepData();
+    const { workHourSteps, loading, error } = useSteps();
     const { isAtWork, isWithinWorkHours, distanceToWorkplace } = useIsWorking();
     var isWorking = isAtWork && isWithinWorkHours;
-
+    
     const [trackingData, setTrackingData] = useState([
         {
             id: 1,
@@ -67,18 +66,16 @@ function Home(props) {
     // }
 
     console.log("Distance to workplace:", distanceToWorkplace);
-    console.log("Is user at workplace?", isAtWork);
-    console.log("Is user within working hours?", isWithinWorkHours)
+    // console.log("Is user at workplace?", isAtWork);
+    // console.log("Is user within working hours?", isWithinWorkHours)
     console.log("Is user working ?", isWorking);
+    console.log("Workplace steps:", workHourSteps);
     
     // Should dynamically change isWorking whenever distance changes
     useEffect(() =>{
         isWorking = isAtWork && isWithinWorkHours;
     }, [distanceToWorkplace])
     
-    useEffect(() => {
-        fetchStepData();
-    }, []);
 
     // Update step count in state when fetched
     useEffect(() => {
@@ -87,13 +84,13 @@ function Home(props) {
                 {
                     id: 1,
                     data: "Steps",
-                    value: steps, // Assign fetched steps
+                    value: workHourSteps, // Assign fetched steps
                     lastUpdated: new Date().toLocaleTimeString(),
                     icon: "foot-print"
                 }
             ]);
         }
-    }, [steps, loading, error]);
+    }, [workHourSteps, loading, error]);
 
     return (
         <View style={styles.container}>
