@@ -1,9 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import * as TaskManager from 'expo-task-manager'
-import * as Location from 'expo-location';
+import * as TaskManager from "expo-task-manager";
+import * as Location from "expo-location";
 
-const LocationContext = createContext();
 const LOCATION_TRACKING = "background-location-task";
+const LocationContext = createContext();
 
 TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
     if (error) {
@@ -13,17 +13,16 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
 
     if (data) {
         const { locations } = data;
-        //console.log("📍 Background Location Update:", locations);
-
         if (locations?.length) {
-            console.log("📍 Background Location Update:", locations[0].coords);
+            console.log(`📍 Background Location Update: ${new Date().toLocaleTimeString()} →`, locations[0].coords);
             LocationProviderInstance.setLocation(locations[0].coords);
         }
     }
 });
 
+// Singleton to update location state outside of React
 export const LocationProviderInstance = {
-    setLocation: () => {}, // Placeholder until useEffect sets it
+    setLocation: () => {},
 };
 
 export const LocationProvider = ({ children }) => {
@@ -31,14 +30,14 @@ export const LocationProvider = ({ children }) => {
     const [errorMsg, setErrorMsg] = useState(null);
     const [isTracking, setIsTracking] = useState(false);
 
-     // Ensure background task updates `location`
+    // Ensure background task updates `location`
     useEffect(() => {
         LocationProviderInstance.setLocation = setLocation;
     }, []);
 
-    // Request foreground and background permissions
+    // Request permissions and check if task is running
     useEffect(() => {
-        const requestPermissions = async () => {
+        const setupLocationTracking = async () => {
             const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
             if (foregroundStatus !== "granted") {
                 setErrorMsg("Permission to access location was denied");
@@ -52,19 +51,30 @@ export const LocationProvider = ({ children }) => {
             }
 
             console.log("✅ Foreground and Background location permissions granted!");
-            fetchCurrentLocation();
-            startBackgroundLocation();
+
+            // Check if background task is registered
+            const isTaskRegistered = await TaskManager.isTaskRegisteredAsync(LOCATION_TRACKING);
+            console.log("📌 Is Background Task Registered?", isTaskRegistered);
+
+            if (!isTaskRegistered) {
+                console.log("🚀 Registering background task...");
+                await startBackgroundLocation(); // Start tracking if not already running
+            } else {
+                console.log("🔄 Background task already registered.");
+            }
+
+            fetchCurrentLocation(); // Also get current location
         };
 
-        requestPermissions();
+        setupLocationTracking();
     }, []);
 
-    // Fetch user's current location when app is active
+    // Fetch user's current location
     const fetchCurrentLocation = async () => {
         try {
             const userLocation = await Location.getCurrentPositionAsync({
                 accuracy: Location.Accuracy.High,
-                mayShowUserInterface: true, // Forces updates even when stationary
+                mayShowUserInterface: true,
             });
             setLocation(userLocation.coords);
             console.log("📍 Current Location:", userLocation.coords);
@@ -81,45 +91,47 @@ export const LocationProvider = ({ children }) => {
                 console.log("🚀 Background location tracking already running");
                 return;
             }
-
+    
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
-                accuracy: Location.Accuracy.High,
-                distanceInterval: 50, // Update every 50 meters
-                timeInterval: 10000, // Update every 10 seconds
-                deferredUpdatesInterval: 30000, // Force updates every 30 seconds when throttled
-                deferredUpdatesDistance: 10, // Request update if user moves 10 meters
-                activityType: Location.ActivityType.Fitness, // Forces updates when user moves
+                accuracy: Location.Accuracy.BestForNavigation,
+                timeInterval: 5000,
+                distanceInterval: 100,
+                deferredUpdatesInterval: 1000, 
+                deferredUpdatesDistance: 50, 
+                pausesUpdatesAutomatically: false, 
+                activityType: Location.ActivityType.Fitness,
                 showsBackgroundLocationIndicator: true,
                 foregroundService: {
                     notificationTitle: "Tracking Location",
                     notificationBody: "Your location is being tracked in the background",
-                    killServiceOnDestroy: false, // Prevents stopping when app is closed
+                    killServiceOnDestroy: false,
                 },
             });
-            
-            setIsTracking(true);
-            console.log("✅ Background location tracking started!");
+    
+            const trackingStatus = await Location.hasStartedLocationUpdatesAsync(LOCATION_TRACKING);
+            setIsTracking(trackingStatus);
+            console.log("✅ Background location tracking started!", trackingStatus);
         } catch (error) {
             console.error("Error starting background location tracking:", error);
         }
     };
-    
-    // Checks task running
-    useEffect(() => {
-        const checkTaskRunning = async () => {
-            const isTaskRegistered = await TaskManager.isTaskRegisteredAsync(LOCATION_TRACKING);
-            console.log("🚀 Is background task running?", isTaskRegistered);
-            if (!isTaskRegistered) {
-                console.log("🔄 Restarting background location tracking...");
-                await startBackgroundLocation();
-            }
-        };
-        checkTaskRunning();
-    }, []);
 
+    // Stop background location tracking
+    const stopBackgroundLocation = async () => {
+        try {
+            const isTaskRegistered = await TaskManager.isTaskRegisteredAsync(LOCATION_TRACKING);
+            if (isTaskRegistered) {
+                await Location.stopLocationUpdatesAsync(LOCATION_TRACKING);
+                console.log("🚫 Background location tracking stopped.");
+            }
+            setIsTracking(false);
+        } catch (error) {
+            console.error("Error stopping background location tracking:", error);
+        }
+    };
 
     return (
-        <LocationContext.Provider value={{ location, errorMsg, isTracking }}>
+        <LocationContext.Provider value={{ location, errorMsg, isTracking, startBackgroundLocation, stopBackgroundLocation }}>
             {children}
         </LocationContext.Provider>
     );

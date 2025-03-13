@@ -12,7 +12,7 @@ export const StepsProvider = ({ children }) => {
     const { steps, stepEntries, fetchStepsForTimeRanges } = useStepRangeData(); // Fetch step range
     
     useEffect(() => {
-        if (isWithinWorkHours && workplaceData?.startTime && workplaceData?.endTime) {
+        if (workplaceData?.startTime && workplaceData?.endTime) {
             // Get today's work hours from IsWorkingProvider
             const now = new Date();
             const workplaceStart = new Date(now);
@@ -25,7 +25,7 @@ export const StepsProvider = ({ children }) => {
             workplaceEnd.setHours(endTimeObj.getUTCHours(), endTimeObj.getUTCMinutes(), 0, 0);
             fetchStepsForTimeRanges([{ startTime: workplaceStart, endTime: workplaceEnd }]);
         }
-    }, [isWithinWorkHours, workplaceData]); // Added workplaceData dependency
+    }, [workplaceData]); // Added workplaceData dependency
 
     useEffect(() => {
         if (steps !== null) {
