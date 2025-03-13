@@ -29,6 +29,8 @@ function WorkplaceDetails({ navigation }) {
     // LOCAL DATA
     // Date-time variables
     const [selectedDays, setSelectedDays] = useState([]);
+    const [showStartPicker, setShowStartPicker] = useState(false);
+    const [showEndPicker, setShowEndPicker] = useState(false);
     const [startTime, setStartTime] = useState(() => {
         let date = new Date();
         date.setHours(9, 0, 0, 0); // 09:00:00.000
@@ -63,15 +65,15 @@ function WorkplaceDetails({ navigation }) {
     };
 
     const onChangeStartTime = (event, selectedTime) => {
-        //setShow(false); // Hide the picker after selection
         if (selectedTime) {
-        setStartTime(selectedTime); // Update time
+        setStartTime(selectedTime); 
+        setShowStartPicker(false); 
         }
     };
     const onChangeEndTime = (event, selectedTime) => {
-        //setShow(false); // Hide the picker after selection
         if (selectedTime) {
-        setEndTime(selectedTime); // Update time
+        setEndTime(selectedTime);
+        setShowEndPicker(false); 
         }
     };
 
@@ -211,31 +213,39 @@ function WorkplaceDetails({ navigation }) {
             <View style={styles.timeSelection}>
                 <View>
                     <Text style={styles.header2}>Start Time</Text>
-                    <DateTimePicker
-                        value={startTime}
-                        mode="time"
-                        //display={Platform.OS === "ios" ? "spinner" : "default"}
-                        onChange={onChangeStartTime}
-                    />
+                        <Button title={startTime.toLocaleTimeString()} onPress={() => setShowStartPicker(true)} />
+                        {showStartPicker && (
+                            <DateTimePicker
+                                value={startTime}
+                                mode="time"
+                                display="default"
+                                onChange={onChangeStartTime}
+                            />
+                        )}
                 </View>
                 <View>
                     <Text style={styles.header2}>End Time</Text>
-                    <DateTimePicker
-                        value={endTime}
-                        mode="time"
-                        //display={Platform.OS === "ios" ? "spinner" : "default"}
-                        onChange={onChangeEndTime}
-                    />
+                        <Button title={endTime.toLocaleTimeString()} onPress={() => setShowEndPicker(true)} />
+                        {showEndPicker && (
+                            <DateTimePicker
+                                value={endTime}
+                                mode="time"
+                                display="default"
+                                onChange={onChangeEndTime}
+                            />
+                        )}
                 </View>
 
             </View>
             <Text style={styles.header1}>Location</Text>
             <View style={styles.mapContainer}>             
                 <MapView
+                    provider="google"
                     ref={mapRef}
                     style={styles.map}
                     initialRegion={selectedLocation}
                     showsUserLocation={true}
+                    showsMyLocationButton={true} 
                     onPress={(e) =>
                     setSelectedLocation({
                         ...e.nativeEvent.coordinate,
@@ -320,10 +330,10 @@ const styles = StyleSheet.create({
     },
     dayButton: {
         width: 45,
-        margin: 2,
-        padding: 4,
+        margin: 0,
+        padding: 1,
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 0,
         borderColor: "#3498db",
     },
     selectedDay: {
