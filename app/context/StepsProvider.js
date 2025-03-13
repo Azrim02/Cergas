@@ -25,7 +25,7 @@ export const StepsProvider = ({ children }) => {
             workplaceEnd.setHours(endTimeObj.getUTCHours(), endTimeObj.getUTCMinutes(), 0, 0);
             fetchStepsForTimeRanges([{ startTime: workplaceStart, endTime: workplaceEnd }]);
         }
-    }, [isWithinWorkHours]);
+    }, [isWithinWorkHours, workplaceData]); // Added workplaceData dependency
 
     useEffect(() => {
         if (steps !== null) {
@@ -34,7 +34,7 @@ export const StepsProvider = ({ children }) => {
     }, [steps]);
 
     return (
-        <StepsContext.Provider value={{ workHourSteps, stepEntries }}>
+        <StepsContext.Provider value={{ workHourSteps, stepEntries, fetchStepsForTimeRanges }}> 
             {children}
         </StepsContext.Provider>
     );

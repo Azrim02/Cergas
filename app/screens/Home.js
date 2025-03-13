@@ -5,6 +5,7 @@ import {
 import { useAuth } from "../api/firebase/AuthProvider";
 import { useIsWorking } from "../context/IsWorkingProvider";
 import { useSteps } from "../context/StepsProvider";
+import { useWorkplace } from "../context/WorkplaceProvider";
 
 import Card from "../components/Card";
 import colors from "../config/colors";
@@ -12,6 +13,7 @@ import { ImageBackground } from "react-native";
 
 function Home() {
     const { user } = useAuth();
+    const { workplaceData } = useWorkplace();
     const { workHourSteps, stepEntries, loading, error, fetchStepsForTimeRanges } = useSteps();
     const { isAtWork, isWithinWorkHours, distanceToWorkplace } = useIsWorking();
     const isWorking = isAtWork && isWithinWorkHours;
@@ -45,19 +47,30 @@ function Home() {
         }
     }, [workHourSteps, loading, error, refreshKey]); // Added refreshKey
 
-    // 🔄 Refresh function for pull-to-refresh
     const onRefresh = async () => {
         setRefreshing(true);
-        console.log("🔄 Refreshing Home...");
+        console.log("🔄 Refreshing step data...");
+    
+        try {
+            const now = new Date();
+            const workplaceStart = new Date(now);
+            const workplaceEnd = new Date(now);
 
-        // Simulate a fetch by waiting a bit
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+            const startTimeObj = new Date(workplaceData.startTime);
+            const endTimeObj = new Date(workplaceData.endTime);
 
-        // Trigger re-fetch by updating refreshKey
-        setRefreshKey((prevKey) => prevKey + 1);
-
+            workplaceStart.setHours(startTimeObj.getUTCHours(), startTimeObj.getUTCMinutes(), 0, 0);
+            workplaceEnd.setHours(endTimeObj.getUTCHours(), endTimeObj.getUTCMinutes(), 0, 0);
+    
+            await fetchStepsForTimeRanges([{ startTime: workplaceStart, endTime: workplaceEnd }]); 
+        } catch (error) {
+            console.error("❌ Error fetching steps:", error);
+        }
+    
+        setRefreshKey((prevKey) => prevKey + 1); // Force re-render
         setRefreshing(false);
     };
+    
 
     return (
         <View style={styles.container}>
