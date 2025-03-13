@@ -13,14 +13,28 @@ TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
 
     if (data) {
         const { locations } = data;
-        console.log("📍 Background Location:", locations);
+        //console.log("📍 Background Location Update:", locations);
+
+        if (locations?.length) {
+            console.log("📍 Background Location Update:", locations[0].coords);
+            LocationProviderInstance.setLocation(locations[0].coords);
+        }
     }
 });
+
+export const LocationProviderInstance = {
+    setLocation: () => {}, // Placeholder until useEffect sets it
+};
 
 export const LocationProvider = ({ children }) => {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [isTracking, setIsTracking] = useState(false);
+
+     // Ensure background task updates `location`
+    useEffect(() => {
+        LocationProviderInstance.setLocation = setLocation;
+    }, []);
 
     // Request foreground and background permissions
     useEffect(() => {
@@ -48,7 +62,10 @@ export const LocationProvider = ({ children }) => {
     // Fetch user's current location when app is active
     const fetchCurrentLocation = async () => {
         try {
-            const userLocation = await Location.getCurrentPositionAsync({});
+            const userLocation = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.High,
+                mayShowUserInterface: true, // Forces updates even when stationary
+            });
             setLocation(userLocation.coords);
             console.log("📍 Current Location:", userLocation.coords);
         } catch (error) {
@@ -68,11 +85,15 @@ export const LocationProvider = ({ children }) => {
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
                 accuracy: Location.Accuracy.High,
                 distanceInterval: 50, // Update every 50 meters
-                timeInterval: 60000, // Update every 60 seconds
+                timeInterval: 10000, // Update every 10 seconds
+                deferredUpdatesInterval: 30000, // Force updates every 30 seconds when throttled
+                deferredUpdatesDistance: 10, // Request update if user moves 10 meters
+                activityType: Location.ActivityType.Fitness, // Forces updates when user moves
                 showsBackgroundLocationIndicator: true,
                 foregroundService: {
                     notificationTitle: "Tracking Location",
                     notificationBody: "Your location is being tracked in the background",
+                    killServiceOnDestroy: false, // Prevents stopping when app is closed
                 },
             });
             
@@ -83,6 +104,19 @@ export const LocationProvider = ({ children }) => {
         }
     };
     
+    // Checks task running
+    useEffect(() => {
+        const checkTaskRunning = async () => {
+            const isTaskRegistered = await TaskManager.isTaskRegisteredAsync(LOCATION_TRACKING);
+            console.log("🚀 Is background task running?", isTaskRegistered);
+            if (!isTaskRegistered) {
+                console.log("🔄 Restarting background location tracking...");
+                await startBackgroundLocation();
+            }
+        };
+        checkTaskRunning();
+    }, []);
+
 
     return (
         <LocationContext.Provider value={{ location, errorMsg, isTracking }}>
