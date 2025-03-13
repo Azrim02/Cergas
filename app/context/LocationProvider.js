@@ -95,9 +95,9 @@ export const LocationProvider = ({ children }) => {
             await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
                 accuracy: Location.Accuracy.BestForNavigation,
                 timeInterval: 5000,
-                distanceInterval: 100,
+                distanceInterval: 10,
                 deferredUpdatesInterval: 1000, 
-                deferredUpdatesDistance: 50, 
+                deferredUpdatesDistance: 20, 
                 pausesUpdatesAutomatically: false, 
                 activityType: Location.ActivityType.Fitness,
                 showsBackgroundLocationIndicator: true,

@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useLocation } from "./LocationProvider";  // Get live location data
 import { useWorkplace } from "./WorkplaceProvider"; // Get workplace data
-import { haversineDistance } from "../utils/distanceCalculator";  // Assuming you have a function to calculate distance
+import { haversineDistance } from "../utils/distanceCalculator"; 
 
 // Create context
 const IsWorkingContext = createContext();

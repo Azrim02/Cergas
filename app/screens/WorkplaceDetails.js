@@ -54,7 +54,7 @@ function WorkplaceDetails({ navigation }) {
     const mapRef = useRef(null); 
 
     // Debug print
-    console.log("🚀 Workplace Data:", workplaceData); // Debug context data
+    // console.log("🚀 Workplace Data:", workplaceData); // Debug context data
 
     const toggleDay = (day) => {
         setSelectedDays((prevDays) =>
