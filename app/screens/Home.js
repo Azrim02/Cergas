@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Modal, TouchableOpacity } from "react-native";
+import { 
+    View, Text, StyleSheet, FlatList, Modal, TouchableOpacity, RefreshControl, ScrollView, KeyboardAvoidingView, Platform 
+} from "react-native";
 import { useAuth } from "../api/firebase/AuthProvider";
 import { useIsWorking } from "../context/IsWorkingProvider";
 import { useSteps } from "../context/StepsProvider";
@@ -10,11 +12,13 @@ import { ImageBackground } from "react-native";
 
 function Home() {
     const { user } = useAuth();
-    const { workHourSteps, stepEntries, loading, error } = useSteps();
+    const { workHourSteps, stepEntries, loading, error, fetchStepsForTimeRanges } = useSteps();
     const { isAtWork, isWithinWorkHours, distanceToWorkplace } = useIsWorking();
     const isWorking = isAtWork && isWithinWorkHours;
 
+    const [refreshing, setRefreshing] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0); // Refresh trigger
 
     const [trackingData, setTrackingData] = useState([
         {
@@ -26,6 +30,7 @@ function Home() {
         },
     ]);
 
+    // 🔄 Re-fetch steps when refreshKey changes
     useEffect(() => {
         if (!loading && !error) {
             setTrackingData([
@@ -38,7 +43,21 @@ function Home() {
                 },
             ]);
         }
-    }, [workHourSteps, loading, error]);
+    }, [workHourSteps, loading, error, refreshKey]); // Added refreshKey
+
+    // 🔄 Refresh function for pull-to-refresh
+    const onRefresh = async () => {
+        setRefreshing(true);
+        console.log("🔄 Refreshing Home...");
+
+        // Simulate a fetch by waiting a bit
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Trigger re-fetch by updating refreshKey
+        setRefreshKey((prevKey) => prevKey + 1);
+
+        setRefreshing(false);
+    };
 
     return (
         <View style={styles.container}>
@@ -56,6 +75,9 @@ function Home() {
                     style={styles.listContainer}
                     data={trackingData}
                     keyExtractor={(item) => item.id.toString()}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
+                    }
                     renderItem={({ item }) => (
                         <Card
                             title={item.data}
@@ -68,26 +90,28 @@ function Home() {
                 />
             </View>
 
-            {/* Styled Modal to Display Step Entries */}
+            {/* Styled Scrollable Modal to Display Step Entries */}
             <Modal visible={modalVisible} transparent={true} animationType="slide">
-                <View style={styles.modalOverlay}>
+                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Step Entries</Text>
-                        <FlatList
-                            data={stepEntries}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({ item }) => (
-                                <View style={styles.stepEntry}>
-                                    <Text style={styles.stepTime}>{new Date(item.startTime).toLocaleTimeString()}</Text>
-                                    <Text style={styles.stepCount}>{item.count} steps</Text>
-                                </View>
-                            )}
-                        />
+                        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+                            <FlatList
+                                data={stepEntries}
+                                keyExtractor={(item, index) => index.toString()}
+                                renderItem={({ item }) => (
+                                    <View style={styles.stepEntry}>
+                                        <Text style={styles.stepTime}>{new Date(item.startTime).toLocaleTimeString()}</Text>
+                                        <Text style={styles.stepCount}>{item.count} steps</Text>
+                                    </View>
+                                )}
+                            />
+                        </ScrollView>
                         <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                             <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
 
             <Text>Distance to workplace: {distanceToWorkplace ? distanceToWorkplace.toFixed(2) + "m" : "N/A"}</Text>
@@ -132,7 +156,7 @@ const styles = StyleSheet.create({
         flex: 3,
     },
 
-    // --- Modal Styles ---
+    // --- Scrollable Modal Styles ---
     modalOverlay: {
         flex: 1,
         backgroundColor: "rgba(0, 0, 0, 0.5)", // Dark overlay background
@@ -141,6 +165,7 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: "85%",
+        maxHeight: "80%", // Limit modal height
         backgroundColor: colors.white,
         padding: 20,
         borderRadius: 12,
@@ -155,6 +180,9 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: "bold",
         marginBottom: 10,
+    },
+    scrollView: {
+        maxHeight: 300, // Ensure scrolling if content is long
     },
     stepEntry: {
         flexDirection: "row",
