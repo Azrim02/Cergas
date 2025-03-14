@@ -2,7 +2,6 @@
 
 A **React Native** app built with **Expo** to help workplace users track fitness and encourage physical activity. This app is designed for Android devices only and integrates with Firebase Authentication and Health Connect to track health data.
 
----
 
 ## Prerequisites
 In your Android device,
@@ -10,7 +9,6 @@ In your Android device,
 - Enable location and health permissions.
 - Allow app's background processes to run.
 
----
 
 ## Implemented Features
 - Workplace check-in & check-out
@@ -20,7 +18,6 @@ In your Android device,
 - Firebase authentication for user login
 - Daily reports of user activity
 
----
 
 ## 🚀 Features yet to be implemented
 - Social features
@@ -31,7 +28,6 @@ In your Android device,
 - Integration with workplace productivity tools (e.g., Slack, Microsoft Teams)
 - Usable in iOS devices (Constrained by Apple's requirement for developer account)
 
----
 
 ## 📦 Installation for Development Builds
 
