@@ -25,7 +25,7 @@ function Home() {
     const [trackingData, setTrackingData] = useState([
         {
             id: 1,
-            data: "Steps",
+            data: "Workplace Steps",
             value: "Fetching...",
             lastUpdated: null,
             icon: "foot-print",
@@ -39,7 +39,7 @@ function Home() {
             setTrackingData([
                 {
                     id: 1,
-                    data: "Steps",
+                    data: "Workplace Steps",
                     value: workHourSteps !== null ? workHourSteps : "Fetching...",
                     lastUpdated: new Date().toLocaleTimeString(),
                     icon: "foot-print",
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
         padding:10,
     },
     listContainer: {
-        padding: 40,
+        padding: 20,
     },
     greetText: {
         color: colors.white,
