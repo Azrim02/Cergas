@@ -138,15 +138,19 @@ function Home() {
                         <Text style={styles.modalTitle}>{modalType === "steps" ? "Step Entries" : "Heart Rate Entries"}</Text>
                         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                         <FlatList
-                            data={modalType === "steps" ? stepEntries : heartRateEntries} // Use heartRateEntries for BPM
+                            data={modalType === "steps" ? stepEntries : heartRateEntries}
                             keyExtractor={(item, index) => index.toString()}
                             renderItem={({ item }) => (
                                 <View style={styles.entry}>
                                     <Text style={styles.entryTime}>
-                                        {new Date(item.time).toLocaleTimeString()} {/* Format time */}
+                                        {modalType === "steps" 
+                                            ? new Date(item.startTime || item.timestamp).toLocaleTimeString() // Fixing Invalid Date
+                                            : new Date(item.time).toLocaleTimeString()} {/* For BPM entries */}
                                     </Text>
                                     <Text style={styles.entryValue}>
-                                        {modalType === "steps" ? `${item.count} steps` : `${item.bpm} BPM`} {/* Show BPM */}
+                                        {modalType === "steps" 
+                                            ? `${item.count || 0} steps` 
+                                            : `${item.bpm || 0} BPM`} {/* Ensure values exist */}
                                     </Text>
                                 </View>
                             )}
