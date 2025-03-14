@@ -1,31 +1,25 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useIsWorking } from "./IsWorkingProvider"; 
-import { useWorkplace } from "./WorkplaceProvider";
 import useStepRangeData from "../hooks/useStepRangeData"; 
 
 const StepsContext = createContext();
 
 export const StepsProvider = ({ children }) => {
-    const { isWithinWorkHours } = useIsWorking(); 
-    const { workplaceData } = useWorkplace(); 
+    const { checkInTime, checkOutTime } = useIsWorking(); // ✅ Use check-in/out times
     const [workHourSteps, setWorkHourSteps] = useState(0);
-    const { steps, stepEntries, fetchStepsForTimeRanges } = useStepRangeData(); // Fetch step range
-    
+    const { steps, stepEntries, fetchStepsForCheckInOut } = useStepRangeData(); // ✅ Updated function
+
+    // 🔄 Fetch steps only when check-in/out changes
     useEffect(() => {
-        if (workplaceData?.startTime && workplaceData?.endTime) {
-            // Get today's work hours from IsWorkingProvider
-            const now = new Date();
-            const workplaceStart = new Date(now);
-            const workplaceEnd = new Date(now);
+        if (checkInTime) {
+            const startTime = checkInTime;
+            const endTime = checkOutTime || new Date(); // If no check-out, use current time
 
-            const startTimeObj = new Date(workplaceData.startTime);
-            const endTimeObj = new Date(workplaceData.endTime);
+            console.log(`📊 Fetching steps from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}`);
 
-            workplaceStart.setHours(startTimeObj.getUTCHours(), startTimeObj.getUTCMinutes(), 0, 0);
-            workplaceEnd.setHours(endTimeObj.getUTCHours(), endTimeObj.getUTCMinutes(), 0, 0);
-            fetchStepsForTimeRanges([{ startTime: workplaceStart, endTime: workplaceEnd }]);
+            fetchStepsForCheckInOut(startTime, endTime);
         }
-    }, [workplaceData]); // Added workplaceData dependency
+    }, [checkInTime, checkOutTime]); 
 
     useEffect(() => {
         if (steps !== null) {
@@ -34,7 +28,7 @@ export const StepsProvider = ({ children }) => {
     }, [steps]);
 
     return (
-        <StepsContext.Provider value={{ workHourSteps, stepEntries, fetchStepsForTimeRanges }}> 
+        <StepsContext.Provider value={{ workHourSteps, stepEntries, fetchStepsForCheckInOut }}> 
             {children}
         </StepsContext.Provider>
     );

@@ -14,8 +14,8 @@ import { ImageBackground } from "react-native";
 function Home() {
     const { user } = useAuth();
     const { workplaceData } = useWorkplace();
-    const { workHourSteps, stepEntries, loading, error, fetchStepsForTimeRanges } = useSteps();
-    const { isAtWork, isWithinWorkHours, distanceToWorkplace } = useIsWorking();
+    const { workHourSteps, stepEntries, loading, error, fetchStepsForCheckInOut } = useSteps();
+    const { isAtWork, isWithinWorkHours, distanceToWorkplace, checkInTime, checkOutTime } = useIsWorking();
     const isWorking = isAtWork && isWithinWorkHours;
 
     const [refreshing, setRefreshing] = useState(false);
@@ -47,22 +47,20 @@ function Home() {
         }
     }, [workHourSteps, loading, error, refreshKey]); // Added refreshKey
 
+    // 🔄 Fetch Steps for Check-in and Check-out Time
     const onRefresh = async () => {
         setRefreshing(true);
         console.log("🔄 Refreshing step data...");
     
         try {
-            const now = new Date();
-            const workplaceStart = new Date(now);
-            const workplaceEnd = new Date(now);
-
-            const startTimeObj = new Date(workplaceData.startTime);
-            const endTimeObj = new Date(workplaceData.endTime);
-
-            workplaceStart.setHours(startTimeObj.getUTCHours(), startTimeObj.getUTCMinutes(), 0, 0);
-            workplaceEnd.setHours(endTimeObj.getUTCHours(), endTimeObj.getUTCMinutes(), 0, 0);
-    
-            await fetchStepsForTimeRanges([{ startTime: workplaceStart, endTime: workplaceEnd }]); 
+            if (checkInTime) {
+                const startTime = checkInTime;
+                const endTime = checkOutTime || new Date(); // If no check-out, use current time
+                console.log(`📊 Fetching steps from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}`);
+                await fetchStepsForCheckInOut(startTime, endTime);
+            } else {
+                console.log("⚠️ No check-in recorded yet. Steps cannot be fetched.");
+            }
         } catch (error) {
             console.error("❌ Error fetching steps:", error);
         }
@@ -70,7 +68,6 @@ function Home() {
         setRefreshKey((prevKey) => prevKey + 1); // Force re-render
         setRefreshing(false);
     };
-    
 
     return (
         <View style={styles.container}>
@@ -80,6 +77,13 @@ function Home() {
                     {isAtWork
                         ? `You are on site, ${isWorking ? "and you are working!" : "but you are not in your working hours."}`
                         : "You're not at work..."}
+                </Text>
+                {/* ⏰ Display Check-in and Check-out times */}
+                <Text style={styles.checkInOutText}>
+                    Clocked in: {checkInTime ? checkInTime.toLocaleTimeString() : "Not Clocked In"}
+                </Text>
+                <Text style={styles.checkInOutText}>
+                    Clocked-out: {checkOutTime ? checkOutTime.toLocaleTimeString() : "Not Clocked Out"}
                 </Text>
             </ImageBackground>
 
@@ -165,6 +169,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 10,
     },
+    checkInOutText: {
+        color: colors.white,
+        fontSize: 16,
+        fontWeight: "bold",
+        textAlign: "left",
+        paddingHorizontal: 20,
+        paddingBottom: 5,
+    },
     lowerContainer: {
         flex: 3,
     },
@@ -178,7 +190,7 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: "85%",
-        maxHeight: "80%", // Limit modal height
+        maxHeight: "80%",
         backgroundColor: colors.white,
         padding: 20,
         borderRadius: 12,
@@ -195,7 +207,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     scrollView: {
-        maxHeight: 300, // Ensure scrolling if content is long
+        maxHeight: 300,
     },
     stepEntry: {
         flexDirection: "row",
@@ -213,17 +225,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
         color: colors.primary,
-    },
-    closeButton: {
-        marginTop: 15,
-        backgroundColor: colors.primary,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 8,
-    },
-    closeButtonText: {
-        color: colors.white,
-        fontSize: 16,
-        fontWeight: "bold",
     },
 });

@@ -7,47 +7,49 @@ const useStepRangeData = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const fetchStepsForTimeRanges = useCallback(async (timeRanges) => {
-        if (!timeRanges || timeRanges.length === 0) return;
+    // ✅ Fix: Ensure correct function dependency management
+    const fetchStepsForCheckInOut = useCallback(async (checkInTime, checkOutTime) => {
+        if (!checkInTime) return; // No check-in means no steps to fetch
 
         setLoading(true);
         setError(null);
         setSteps(null);
         setStepEntries([]);
 
+        const startTime = new Date(checkInTime);
+        const endTime = checkOutTime ? new Date(checkOutTime) : new Date(); // If no check-out, use current time
+
         try {
+            console.log(`📊 Fetching steps from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}`);
+
             const isInitialized = await initialize();
             if (!isInitialized) throw new Error("Failed to initialize Health Connect");
 
             const grantedPermissions = await requestPermission([{ accessType: "read", recordType: "Steps" }]);
             if (!grantedPermissions) throw new Error("Permission denied");
 
-            let totalSteps = 0;
-            let entries = [];
+            const { records } = await readRecords("Steps", {
+                timeRangeFilter: {
+                    operator: "between",
+                    startTime: startTime.toISOString(),
+                    endTime: endTime.toISOString(),
+                },
+            });
 
-            for (const { startTime, endTime } of timeRanges) {
-                const { records } = await readRecords("Steps", {
-                    timeRangeFilter: {
-                        operator: "between",
-                        startTime: new Date(startTime).toISOString(),
-                        endTime: new Date(endTime).toISOString(),
-                    },
-                });
-
-                totalSteps += records.reduce((sum, record) => sum + (record.count || 0), 0);
-                entries = [...entries, ...records]; // Store detailed step records
-            }
-
+            const totalSteps = records.reduce((sum, record) => sum + (record.count || 0), 0);
             setSteps(totalSteps);
-            setStepEntries(entries);
+            setStepEntries(records);
+
+            console.log(`📈 Steps from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}: ${totalSteps}`);
         } catch (err) {
+            console.error("❌ Step Fetch Error:", err);
             setError(err.message);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, []); // ✅ Fix: No unnecessary dependencies
 
-    return { steps, stepEntries, error, loading, fetchStepsForTimeRanges };
+    return { steps, stepEntries, error, loading, fetchStepsForCheckInOut };
 };
 
 export default useStepRangeData;
