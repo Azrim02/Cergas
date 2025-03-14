@@ -25,7 +25,7 @@ A **React Native** app built with **Expo** to help workplace users track fitness
 
 ---
 
-## 📦 Installation
+## 📦 Installation for Development Builds
 
 ### Download the development build profile here
 
@@ -41,9 +41,10 @@ npm expo start
 ```
 Ensure **Node.js** and **Expo CLI** are installed on your machine.
 
-### Download app preview: direct installation of preview profile
-
+## Use the app!
+You can download the apk file directly and use it on your android device on the go! 
 https://drive.google.com/file/d/12p-FL-V1yNhol8h0MIF_9c4uNpy-XHBq/view?usp=sharing
+This is the preview version of the app, but all currently implemented functionalities should be working fully as intended.
 
 ## Technical Details
 - **Platform**: Android only
