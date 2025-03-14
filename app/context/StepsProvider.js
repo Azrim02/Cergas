@@ -13,10 +13,10 @@ export const StepsProvider = ({ children }) => {
     const [workHourSteps, setWorkHourSteps] = useState(0);
     const { steps, stepEntries, fetchStepsForCheckInOut } = useStepRangeData(); 
 
-    // ✅ Load previous step count from Firestore when the app starts
+    // ✅ Load previous step count & check-in/out times from Firestore when the app starts
     useEffect(() => {
         if (user) {
-            loadSavedSteps(user.uid);
+            loadSavedWorkSession(user.uid);
         }
     }, [user]);
 
@@ -32,7 +32,7 @@ export const StepsProvider = ({ children }) => {
                 .then((fetchedSteps) => {
                     console.log("📈 Steps fetched:", fetchedSteps);
                     setWorkHourSteps(fetchedSteps); // ✅ Update local state
-                    storeDailySteps(user.uid, fetchedSteps, endTime); // ✅ Pass the correct step count to Firestore
+                    storeDailyWorkSession(user.uid, fetchedSteps, startTime, endTime); // ✅ Save all data to Firestore
                 })
                 .catch(error => console.error("❌ Step Fetch Error:", error));
         }
@@ -42,35 +42,42 @@ export const StepsProvider = ({ children }) => {
     useEffect(() => {
         if (user && checkOutTime && steps !== null) {
             console.log("💾 Saving steps after checkout:", steps);
-            storeDailySteps(user.uid, steps, checkOutTime);
+            storeDailyWorkSession(user.uid, steps, checkInTime, checkOutTime);
         }
     }, [steps, checkOutTime, user]);
 
-    // ✅ Load saved steps from Firestore
-    const loadSavedSteps = async (uid) => {
+    // ✅ Load saved step data & check-in/out times from Firestore
+    const loadSavedWorkSession = async (uid) => {
         try {
             const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
             const docRef = doc(db, "users", uid, "dailySteps", today);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                const stepData = docSnap.data();
-                setWorkHourSteps(stepData.steps || 0);
-                console.log("✅ Loaded steps from Firestore:", stepData.steps);
+                const sessionData = docSnap.data();
+                setWorkHourSteps(sessionData.steps || 0);
+                console.log("✅ Loaded steps from Firestore:", sessionData.steps);
+
+                if (sessionData.checkIn) {
+                    console.log("✅ Loaded check-in time from Firestore:", new Date(sessionData.checkIn).toLocaleTimeString());
+                }
+                if (sessionData.checkOut) {
+                    console.log("✅ Loaded check-out time from Firestore:", new Date(sessionData.checkOut).toLocaleTimeString());
+                }
             } else {
-                console.log("📭 No step data for today, starting fresh.");
+                console.log("📭 No work session data for today, starting fresh.");
                 setWorkHourSteps(0);
             }
         } catch (error) {
-            console.error("❌ Error loading steps from Firestore:", error);
+            console.error("❌ Error loading work session from Firestore:", error);
         }
     };
 
-    // ✅ Save the user's step data to Firestore
-    const storeDailySteps = async (uid, stepCount, endTime) => {
+    // ✅ Save the user's work session data (Steps + Check-in/out times) to Firestore
+    const storeDailyWorkSession = async (uid, stepCount, checkIn, checkOut) => {
         try {
-            if (stepCount === null || stepCount === undefined) {
-                console.warn("⚠️ Skipping Firestore save due to invalid step count");
+            if (!checkIn) {
+                console.warn("⚠️ Skipping Firestore save due to missing check-in time.");
                 return;
             }
 
@@ -79,13 +86,15 @@ export const StepsProvider = ({ children }) => {
 
             await setDoc(docRef, {
                 date: today,
-                steps: stepCount,  // ✅ Use fetched steps instead of workHourSteps
-                timestamp: endTime.toISOString(),
-            });
+                steps: stepCount || 0,  // ✅ Use fetched steps instead of workHourSteps
+                checkIn: checkIn.toISOString(),
+                checkOut: checkOut ? checkOut.toISOString() : null, // ✅ Save check-out if available
+                timestamp: new Date().toISOString(),
+            }, { merge: true });
 
-            console.log("💾 Steps saved to Firestore:", stepCount);
+            console.log("💾 Work session saved to Firestore:", { steps: stepCount, checkIn, checkOut });
         } catch (error) {
-            console.error("❌ Error saving steps to Firestore:", error);
+            console.error("❌ Error saving work session to Firestore:", error);
         }
     };
 
