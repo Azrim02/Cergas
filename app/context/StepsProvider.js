@@ -3,22 +3,28 @@ import { useLocation } from "./LocationProvider";
 import { useWorkplace } from "./WorkplaceProvider"; 
 import { haversineDistance } from "../utils/distanceCalculator"; 
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
+import { db } from "../api/firebaseConfig"; 
+import { useAuth } from "../api/firebase/AuthProvider";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 const IsWorkingContext = createContext();
 
 export const IsWorkingProvider = ({ children }) => {
+    const { user } = useAuth(); 
     const { location } = useLocation();
     const { workplaceData } = useWorkplace();
+    
     const [isAtWork, setIsAtWork] = useState(false);
     const [isWithinWorkHours, setIsWithinWorkHours] = useState(false);
     const [distanceToWorkplace, setDistanceToWorkplace] = useState(null);
     const [checkInTime, setCheckInTime] = useState(null);
     const [checkOutTime, setCheckOutTime] = useState(null);
 
-    // 🔄 Load check-in and check-out times when the app starts
     useEffect(() => {
-        loadCheckTimesFromStorage();
-    }, []);
+        if (user) {
+            loadCheckTimes(user.uid);
+        }
+    }, [user]);
 
     useEffect(() => {
         if (!location || !workplaceData) return;
@@ -39,60 +45,51 @@ export const IsWorkingProvider = ({ children }) => {
         handleCheckInOut(isAtWorkplace, isWithinWorkHours);
     }, [location, workplaceData]);
 
-    const loadCheckTimesFromStorage = async () => {
+    // ✅ Load check-in and check-out times from Firestore & AsyncStorage
+    const loadCheckTimes = async (uid) => {
         try {
-            const storedCheckIn = await AsyncStorage.getItem("checkInTime");
-            const storedCheckOut = await AsyncStorage.getItem("checkOutTime");
-            const today = new Date().toDateString(); // Current day in local time
+            const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+            const docRef = doc(db, "users", uid, "workSession", today);
+            const docSnap = await getDoc(docRef);
 
-            if (storedCheckIn) {
-                const checkInDateUTC = new Date(storedCheckIn);
-                const checkInDateLocal = new Date(checkInDateUTC.toLocaleString("en-US", { timeZone: "UTC" }));
-
-                if (checkInDateLocal.toDateString() === today) {
-                    setCheckInTime(checkInDateLocal);
-                    console.log("✅ Loaded check-in time (local):", checkInDateLocal.toLocaleTimeString());
-                } else {
-                    await AsyncStorage.removeItem("checkInTime");
-                    setCheckInTime(null);
+            if (docSnap.exists()) {
+                const { checkIn, checkOut } = docSnap.data();
+                if (checkIn) {
+                    setCheckInTime(new Date(checkIn));
+                    await AsyncStorage.setItem("checkInTime", checkIn);
                 }
-            }
-
-            if (storedCheckOut) {
-                const checkOutDateUTC = new Date(storedCheckOut);
-                const checkOutDateLocal = new Date(checkOutDateUTC.toLocaleString("en-US", { timeZone: "UTC" }));
-
-                if (checkOutDateLocal.toDateString() === today) {
-                    setCheckOutTime(checkOutDateLocal);
-                    console.log("✅ Loaded check-out time (local):", checkOutDateLocal.toLocaleTimeString());
-                } else {
-                    await AsyncStorage.removeItem("checkOutTime");
-                    setCheckOutTime(null);
+                if (checkOut) {
+                    setCheckOutTime(new Date(checkOut));
+                    await AsyncStorage.setItem("checkOutTime", checkOut);
                 }
+                console.log("✅ Loaded check-in/out from Firestore.");
+            } else {
+                console.log("📭 No check-in data for today.");
+                setCheckInTime(null);
+                setCheckOutTime(null);
+                await AsyncStorage.removeItem("checkInTime");
+                await AsyncStorage.removeItem("checkOutTime");
             }
         } catch (error) {
-            console.error("❌ Error loading check times:", error);
+            console.error("❌ Error loading check-in data:", error);
         }
     };
 
-    const saveCheckInToStorage = async (timestamp) => {
+    // ✅ Save check-in & check-out times to Firestore
+    const saveCheckTimesToFirestore = async (uid, checkIn, checkOut) => {
         try {
-            await AsyncStorage.setItem("checkInTime", timestamp.toISOString());
-            console.log("💾 Check-in time saved (local):", timestamp.toLocaleTimeString());
+            const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+            const docRef = doc(db, "users", uid, "workSession", today);
+
+            await setDoc(docRef, { checkIn, checkOut }, { merge: true });
+
+            console.log("💾 Check-in/out saved to Firestore.");
         } catch (error) {
-            console.error("❌ Error saving check-in:", error);
+            console.error("❌ Error saving check-in data to Firestore:", error);
         }
     };
 
-    const saveCheckOutToStorage = async (timestamp) => {
-        try {
-            await AsyncStorage.setItem("checkOutTime", timestamp.toISOString());
-            console.log("💾 Check-out time saved (local):", timestamp.toLocaleTimeString());
-        } catch (error) {
-            console.error("❌ Error saving check-out:", error);
-        }
-    };
-
+    // ✅ Convert workplace hours from UTC to Local Time
     const checkWorkHours = (workplaceData) => {
         if (!workplaceData?.startTime || !workplaceData?.endTime || !workplaceData?.selectedDays) {
             setIsWithinWorkHours(false);
@@ -120,28 +117,35 @@ export const IsWorkingProvider = ({ children }) => {
         setIsWithinWorkHours(currentTimeLocal >= startTimeMinutes && currentTimeLocal <= endTimeMinutes);
     };
 
+    // ✅ Handle check-in/out logic
     const handleCheckInOut = (isAtWork, isWithinWorkHours) => {
-        const now = new Date();
-        const endTimeUTC = new Date(workplaceData.endTime);
-        const endTimeLocal = new Date(endTimeUTC.toLocaleString("en-US", { timeZone: "UTC" }));
+        if (!user) return;
 
-        // ✅ Check-in logic
+        const now = new Date();
+        const nowUTC = now.toISOString(); // Store in UTC
+
+        // ✅ Check-in
         if (isAtWork && isWithinWorkHours && !checkInTime) {
             console.log("✅ User checked in at:", now.toLocaleTimeString());
             setCheckInTime(now);
-            saveCheckInToStorage(now);
+            AsyncStorage.setItem("checkInTime", nowUTC);
+            saveCheckTimesToFirestore(user.uid, nowUTC, null);
         }
 
+        // ✅ Early Check-out (User leaves before office hours end)
         if (!isAtWork && checkInTime && !checkOutTime) {
             console.log("🚪 User checked out at:", now.toLocaleTimeString());
             setCheckOutTime(now);
-            saveCheckOutToStorage(now);
+            AsyncStorage.setItem("checkOutTime", nowUTC);
+            saveCheckTimesToFirestore(user.uid, checkInTime.toISOString(), nowUTC);
         }
 
+        // ✅ If the user returns after check-out, reset check-out time
         if (isAtWork && checkOutTime) {
             console.log("🔄 User returned after check-out at:", now.toLocaleTimeString());
             setCheckOutTime(null);
-            saveCheckOutToStorage(now);
+            AsyncStorage.removeItem("checkOutTime");
+            saveCheckTimesToFirestore(user.uid, checkInTime.toISOString(), null);
         }
     };
 
