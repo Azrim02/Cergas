@@ -1,165 +1,99 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { useLocation } from "./LocationProvider";  
-import { useWorkplace } from "./WorkplaceProvider"; 
-import { haversineDistance } from "../utils/distanceCalculator"; 
-import AsyncStorage from "@react-native-async-storage/async-storage"; 
-import { db } from "../api/firebaseConfig"; 
-import { useAuth } from "../api/firebase/AuthProvider";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { useIsWorking } from "./IsWorkingProvider"; 
+import useStepRangeData from "../hooks/useStepRangeData"; 
+import { db } from "../api/firebase/firebaseConfig"; // Firestore instance
+import { useAuth } from "../api/firebase/AuthProvider"; // Import Auth Provider to get user info
+import { doc, setDoc, getDoc } from "firebase/firestore"; 
 
-const IsWorkingContext = createContext();
+const StepsContext = createContext();
 
-export const IsWorkingProvider = ({ children }) => {
-    const { user } = useAuth(); 
-    const { location } = useLocation();
-    const { workplaceData } = useWorkplace();
-    
-    const [isAtWork, setIsAtWork] = useState(false);
-    const [isWithinWorkHours, setIsWithinWorkHours] = useState(false);
-    const [distanceToWorkplace, setDistanceToWorkplace] = useState(null);
-    const [checkInTime, setCheckInTime] = useState(null);
-    const [checkOutTime, setCheckOutTime] = useState(null);
+export const StepsProvider = ({ children }) => {
+    const { user } = useAuth(); // Get current user
+    const { checkInTime, checkOutTime } = useIsWorking(); 
+    const [workHourSteps, setWorkHourSteps] = useState(0);
+    const { steps, stepEntries, fetchStepsForCheckInOut } = useStepRangeData(); 
 
+    // ✅ Load previous step count from Firestore when the app starts
     useEffect(() => {
         if (user) {
-            loadCheckTimes(user.uid);
+            loadSavedSteps(user.uid);
         }
     }, [user]);
 
+    // 🔄 Fetch steps when check-in or check-out time changes
     useEffect(() => {
-        if (!location || !workplaceData) return;
+        if (user && checkInTime) {
+            const startTime = checkInTime;
+            const endTime = checkOutTime || new Date(); // If no check-out, use current time
 
-        const distance = haversineDistance(
-            workplaceData.location.latitude,
-            workplaceData.location.longitude,
-            location.latitude,
-            location.longitude
-        );
-        setDistanceToWorkplace(distance);
+            console.log(`📊 Fetching steps from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}`);
 
-        const isAtWorkplace = distance < workplaceData.location.radius;
-        setIsAtWork(isAtWorkplace);
+            fetchStepsForCheckInOut(startTime, endTime)
+                .then((fetchedSteps) => {
+                    console.log("📈 Steps fetched:", fetchedSteps);
+                    setWorkHourSteps(fetchedSteps); // ✅ Update local state
+                    storeDailySteps(user.uid, fetchedSteps, endTime); // ✅ Pass the correct step count to Firestore
+                })
+                .catch(error => console.error("❌ Step Fetch Error:", error));
+        }
+    }, [checkInTime, checkOutTime, user]); 
 
-        checkWorkHours(workplaceData);
+    // 🔄 Ensure Firestore gets the latest step count
+    useEffect(() => {
+        if (user && checkOutTime && steps !== null) {
+            console.log("💾 Saving steps after checkout:", steps);
+            storeDailySteps(user.uid, steps, checkOutTime);
+        }
+    }, [steps, checkOutTime, user]);
 
-        handleCheckInOut(isAtWorkplace, isWithinWorkHours);
-    }, [location, workplaceData]);
-
-    // ✅ Load check-in and check-out times from Firestore & AsyncStorage
-    const loadCheckTimes = async (uid) => {
+    // ✅ Load saved steps from Firestore
+    const loadSavedSteps = async (uid) => {
         try {
             const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
-            const docRef = doc(db, "users", uid, "workSession", today);
+            const docRef = doc(db, "users", uid, "dailySteps", today);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                const { checkIn, checkOut } = docSnap.data();
-                if (checkIn) {
-                    setCheckInTime(new Date(checkIn));
-                    await AsyncStorage.setItem("checkInTime", checkIn);
-                }
-                if (checkOut) {
-                    setCheckOutTime(new Date(checkOut));
-                    await AsyncStorage.setItem("checkOutTime", checkOut);
-                }
-                console.log("✅ Loaded check-in/out from Firestore.");
+                const stepData = docSnap.data();
+                setWorkHourSteps(stepData.steps || 0);
+                console.log("✅ Loaded steps from Firestore:", stepData.steps);
             } else {
-                console.log("📭 No check-in data for today.");
-                setCheckInTime(null);
-                setCheckOutTime(null);
-                await AsyncStorage.removeItem("checkInTime");
-                await AsyncStorage.removeItem("checkOutTime");
+                console.log("📭 No step data for today, starting fresh.");
+                setWorkHourSteps(0);
             }
         } catch (error) {
-            console.error("❌ Error loading check-in data:", error);
+            console.error("❌ Error loading steps from Firestore:", error);
         }
     };
 
-    // ✅ Save check-in & check-out times to Firestore
-    const saveCheckTimesToFirestore = async (uid, checkIn, checkOut) => {
+    // ✅ Save the user's step data to Firestore
+    const storeDailySteps = async (uid, stepCount, endTime) => {
         try {
+            if (stepCount === null || stepCount === undefined) {
+                console.warn("⚠️ Skipping Firestore save due to invalid step count");
+                return;
+            }
+
             const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
-            const docRef = doc(db, "users", uid, "workSession", today);
+            const docRef = doc(db, "users", uid, "dailySteps", today);
 
-            await setDoc(docRef, { checkIn, checkOut }, { merge: true });
+            await setDoc(docRef, {
+                date: today,
+                steps: stepCount,  // ✅ Use fetched steps instead of workHourSteps
+                timestamp: endTime.toISOString(),
+            });
 
-            console.log("💾 Check-in/out saved to Firestore.");
+            console.log("💾 Steps saved to Firestore:", stepCount);
         } catch (error) {
-            console.error("❌ Error saving check-in data to Firestore:", error);
-        }
-    };
-
-    // ✅ Convert workplace hours from UTC to Local Time
-    const checkWorkHours = (workplaceData) => {
-        if (!workplaceData?.startTime || !workplaceData?.endTime || !workplaceData?.selectedDays) {
-            setIsWithinWorkHours(false);
-            return;
-        }
-
-        const now = new Date();
-        const currentDay = now.toLocaleString("en-US", { weekday: "short" });
-
-        if (!workplaceData.selectedDays.includes(currentDay)) {
-            setIsWithinWorkHours(false);
-            return;
-        }
-
-        const startTimeUTC = new Date(workplaceData.startTime);
-        const endTimeUTC = new Date(workplaceData.endTime);
-
-        const startTimeLocal = new Date(startTimeUTC.toLocaleString("en-US", { timeZone: "UTC" }));
-        const endTimeLocal = new Date(endTimeUTC.toLocaleString("en-US", { timeZone: "UTC" }));
-
-        const currentTimeLocal = now.getHours() * 60 + now.getMinutes();
-        const startTimeMinutes = startTimeLocal.getHours() * 60 + startTimeLocal.getMinutes();
-        const endTimeMinutes = endTimeLocal.getHours() * 60 + endTimeLocal.getMinutes();
-
-        setIsWithinWorkHours(currentTimeLocal >= startTimeMinutes && currentTimeLocal <= endTimeMinutes);
-    };
-
-    // ✅ Handle check-in/out logic
-    const handleCheckInOut = (isAtWork, isWithinWorkHours) => {
-        if (!user) return;
-
-        const now = new Date();
-        const nowUTC = now.toISOString(); // Store in UTC
-
-        // ✅ Check-in
-        if (isAtWork && isWithinWorkHours && !checkInTime) {
-            console.log("✅ User checked in at:", now.toLocaleTimeString());
-            setCheckInTime(now);
-            AsyncStorage.setItem("checkInTime", nowUTC);
-            saveCheckTimesToFirestore(user.uid, nowUTC, null);
-        }
-
-        // ✅ Early Check-out (User leaves before office hours end)
-        if (!isAtWork && checkInTime && !checkOutTime) {
-            console.log("🚪 User checked out at:", now.toLocaleTimeString());
-            setCheckOutTime(now);
-            AsyncStorage.setItem("checkOutTime", nowUTC);
-            saveCheckTimesToFirestore(user.uid, checkInTime.toISOString(), nowUTC);
-        }
-
-        // ✅ If the user returns after check-out, reset check-out time
-        if (isAtWork && checkOutTime) {
-            console.log("🔄 User returned after check-out at:", now.toLocaleTimeString());
-            setCheckOutTime(null);
-            AsyncStorage.removeItem("checkOutTime");
-            saveCheckTimesToFirestore(user.uid, checkInTime.toISOString(), null);
+            console.error("❌ Error saving steps to Firestore:", error);
         }
     };
 
     return (
-        <IsWorkingContext.Provider value={{ 
-            isAtWork, 
-            isWithinWorkHours, 
-            distanceToWorkplace, 
-            checkInTime, 
-            checkOutTime 
-        }}>
+        <StepsContext.Provider value={{ workHourSteps, stepEntries, fetchStepsForCheckInOut }}> 
             {children}
-        </IsWorkingContext.Provider>
+        </StepsContext.Provider>
     );
 };
 
-export const useIsWorking = () => useContext(IsWorkingContext);
+export const useSteps = () => useContext(StepsContext);

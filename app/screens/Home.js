@@ -34,18 +34,19 @@ function Home() {
 
     // 🔄 Re-fetch steps when refreshKey changes
     useEffect(() => {
+        console.log("🔄 workHourSteps changed:", workHourSteps);
         if (!loading && !error) {
             setTrackingData([
                 {
                     id: 1,
                     data: "Steps",
-                    value: workHourSteps || 0,
+                    value: workHourSteps !== null ? workHourSteps : "Fetching...",
                     lastUpdated: new Date().toLocaleTimeString(),
                     icon: "foot-print",
                 },
             ]);
         }
-    }, [workHourSteps, loading, error, refreshKey]); // Added refreshKey
+    }, [workHourSteps, loading, error, refreshKey]);
 
     // 🔄 Fetch Steps for Check-in and Check-out Time
     const onRefresh = async () => {
