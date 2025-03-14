@@ -5,7 +5,8 @@ A **React Native** app built with **Expo** to help workplace users track fitness
 
 ## Prerequisites
 In your Android device,
-- Ensure you have **Health Connect** installed. You can sync data from Google Fit through it.
+- Ensure you have **Health Connect** installed.
+  - You can sync data from health tracking services (e.g. Google Fit, FitBit) through it.
 - Enable location and health permissions.
 - Allow app's background processes to run.
 
@@ -47,7 +48,7 @@ npm expo start
 ```
 Ensure **Node.js** and **Expo CLI** are installed on your machine.
 
-## Use the app!
+## Use the Cergas App Now!
 You can download the apk file directly and use it on your android device on the go! 
 
 [Download APK](https://drive.google.com/file/d/12vf6G50sIm00W8MhzuXa7nNvoZjnQ-aN/view?usp=sharing)
