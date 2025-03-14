@@ -47,7 +47,9 @@ Ensure **Node.js** and **Expo CLI** are installed on your machine.
 
 ## Use the app!
 You can download the apk file directly and use it on your android device on the go! 
+
 https://drive.google.com/file/d/12vf6G50sIm00W8MhzuXa7nNvoZjnQ-aN/view?usp=sharing
+
 This is the preview version of the app, but all currently implemented functionalities should be working fully as intended.
 
 ## Technical Details
