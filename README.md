@@ -4,6 +4,14 @@ A **React Native** app built with **Expo** to help workplace users track fitness
 
 ---
 
+## Prerequisite
+In your Android device,
+- Ensure you have **Health Connect** installed. You can sync data from Google Fit through it.
+- Enable location and health permissions.
+- Allow app's background processes to run.
+
+---
+
 ## Implemented Features
 - Workplace check-in & check-out
 - Background location tracking (GPS-based, no Wi-Fi validation)
