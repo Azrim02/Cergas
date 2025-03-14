@@ -8,16 +8,16 @@ import ListItem from '../components/ListItem';
 import ListItemSeparator from '../components/ListItemSeparator';
 
 const list = [
-    {
-        id: "1",
-        title: "Link Health",
-        icon: {
-            name: "heart-pulse",
-            //backgroundColor: colors.primary,
-        },
-        targetScreen: Routes.LINK_HEALTH,
-        data: { userListings: true },
-    },
+    // {
+    //     id: "1",
+    //     title: "Link Health",
+    //     icon: {
+    //         name: "heart-pulse",
+    //         //backgroundColor: colors.primary,
+    //     },
+    //     targetScreen: Routes.LINK_HEALTH,
+    //     data: { userListings: true },
+    // },
     {
         id: "2",
         title: "Daily Health Data",
@@ -38,16 +38,16 @@ const list = [
         targetScreen: Routes.WORKPLACE_DETAILS,
         data: {},
     },
-    {
-        id: "4",
-        title: "Settings",
-        icon: {
-            name: "cog",
-            //backgroundColor: colors.secondary,
-        },
-        //targetScreen: Routes.MESSAGES,
-        data: {},
-    },
+    // {
+    //     id: "4",
+    //     title: "Settings",
+    //     icon: {
+    //         name: "cog",
+    //         //backgroundColor: colors.secondary,
+    //     },
+    //     //targetScreen: Routes.MESSAGES,
+    //     data: {},
+    // },
 ]
 
 function Profile({ navigation }) {
