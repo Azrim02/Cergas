@@ -34,7 +34,8 @@ In your Android device,
 ### Download the development build profile here
 
 [Download Dev Builds](https://drive.google.com/file/d/12oNNIhSFB5vNcJ5RC1-bfqlxXixl6bHz/view?usp=sharing)
-![RQ Code](qr_dev_build.png)
+
+![QR Code](qr_dev_build.png)
 
 ### Clone to execute development build
 
