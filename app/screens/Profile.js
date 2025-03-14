@@ -20,6 +20,16 @@ const list = [
     },
     {
         id: "2",
+        title: "Daily Health Data",
+        icon: {
+            name: "heart-plus",
+            //backgroundColor: colors.secondary,
+        },
+        targetScreen: Routes.DAILY_HEALTH_SCREEN,
+        data: {},
+    },
+    {
+        id: "3",
         title: "Workplace Details",
         icon: {
             name: "office-building",
@@ -29,7 +39,7 @@ const list = [
         data: {},
     },
     {
-        id: "3",
+        id: "4",
         title: "Settings",
         icon: {
             name: "cog",

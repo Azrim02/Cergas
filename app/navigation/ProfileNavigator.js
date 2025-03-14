@@ -5,6 +5,7 @@ import routes from './routes';
 import Profile from '../screens/Profile';
 import WorkplaceDetails from '../screens/WorkplaceDetails';
 import LinkHealth from '../screens/LinkHealth';
+import DailyHealthScreen from '../screens/DailyHealthScreen';
 
 const Stack = createStackNavigator();
 
@@ -13,8 +14,9 @@ function ProfileNavigator() {
         <Stack.Navigator>
             <Stack.Screen name={routes.PROFILE} component={Profile} />
             <Stack.Screen name={routes.LINK_HEALTH} component={LinkHealth} />
+            <Stack.Screen name={routes.DAILY_HEALTH_SCREEN} component={DailyHealthScreen} />
             <Stack.Screen name={routes.WORKPLACE_DETAILS} component={WorkplaceDetails} />
-            <Stack.Screen name="Settings" component={Profile} />
+            <Stack.Screen name="Settings" component={LinkHealth} />
         </Stack.Navigator>
     );
 }

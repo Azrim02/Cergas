@@ -3,30 +3,31 @@ import { View, StyleSheet, Image, TouchableOpacity, Text } from 'react-native';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import colors from '../config/colors';
 
-function Card({title, subTitle, image, onPress, icon, lastUpdated}) {
+function Card({ title, subTitle, image, onPress, icon, lastUpdated, chevron = true }) {
     return (
         <TouchableOpacity onPress={onPress}>
             <View style={styles.card}>
-                {icon ?(
+                {icon ? (
                     <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons name={icon} size={80} color={colors.grey}/>
+                        <MaterialCommunityIcons name={icon} size={80} color={colors.grey} />
                     </View>
-                ):(
-                    <Image style={styles.image} source={image}/>
-                )}
-                
+                ) : image ? (
+                    <Image style={styles.image} source={image} />
+                ) : null }
+
                 <View style={styles.cardText}>
                     <Text style={styles.cardTitle}>{title}</Text>
                     {subTitle ? <Text style={styles.cardSubTitle}>{subTitle}</Text> : null}
                     {lastUpdated ? <Text style={styles.lastUpdated}>{lastUpdated}</Text> : null}
+                </View>
 
-                </View>
-                <View style={styles.cardChevron}>
-                    <MaterialCommunityIcons  name="chevron-right" size={50} color={colors.grey}/>
-                </View>
+                {chevron ? (
+                    <View style={styles.cardChevron}>
+                        <MaterialCommunityIcons name="chevron-right" size={50} color={colors.grey} />
+                    </View>
+                ) : null}
             </View>
         </TouchableOpacity>
-        
     );
 }
 
