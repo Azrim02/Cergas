@@ -1,37 +1,68 @@
-# 📱 Cergas App
+# Cergas App
 
-A **React Native** app built with **Expo** to help workplace users track fitness and encourage physical activity.
+A **React Native** app built with **Expo** to help workplace users track fitness and encourage physical activity. This app is designed for Android devices only and integrates with Firebase Authentication and Health Connect to track health data.
 
 ---
 
-## Features
-- Workplace check-in & check-out  
-- Background location tracking  
-- Track daily steps  
-- Monitor resting heart rate  
+## Implemented Features
+- Workplace check-in & check-out
+- Background location tracking (GPS-based, no Wi-Fi validation)
+- Track daily steps using Health Connect
+- Monitor resting heart rate using Health Connect
+- Firebase authentication for user login
+- Daily reports of user activity
 
 ---
 
 ## 🚀 Features yet to be implemented
 - Social features
 - Leaderboards
-- Health metrics goals
-- Other trackable health data
+- Health metric goals
+- Additional trackable health data
+- Workplace team challenges
+- Integration with workplace productivity tools (e.g., Slack, Microsoft Teams)
+- Usable in iOS devices (Constrained by Apple's requirement for developer account)
 
 ---
 
 ## 📦 Installation
+
 ### Download the development build profile here
+
 https://drive.google.com/file/d/12oNNIhSFB5vNcJ5RC1-bfqlxXixl6bHz/view?usp=sharing
 
 ### Clone to execute development build
+
 ```sh
 git clone https://github.com/Azrim02/Cergas.git
+cd Cergas
 npm install
 npm expo start
 ```
-Ensure you have node.js installed on your machine.
+Ensure **Node.js** and **Expo CLI** are installed on your machine.
 
 ### Download app preview: direct installation of preview profile
+
 https://drive.google.com/file/d/12p-FL-V1yNhol8h0MIF_9c4uNpy-XHBq/view?usp=sharing
 
+## Technical Details
+- **Platform**: Android only
+- **Authentication**: Firebase Authentication
+- **Health Data**: Uses Health Connect API (Google)
+- **Location Tracking**: GPS-based workplace validation (No Wi-Fi used)
+- **Database**: Firebase Firestore for user data storage
+
+## Tech Stack Used
+- React Native with Expo Managed Workflow
+- Firebase Authentication for user login
+- Google Health Connect API for step and heart rate tracking
+- Firestore for storing user health data and workplace details
+- Expo Location API for GPS-based workplace validation
+
+## Usage Notes
+- The app is designed exclusively for Android devices.
+- Uses Health Connect due to restrictions on accessing HealthKit API.
+- Does not use Wi-Fi for location validation, relying solely on GPS.
+- Users must grant Health Connect permissions to enable step and heart rate tracking.
+- For any issues or feature requests, feel free to contribute or report them on the repository.
+- Ensure to set your workplace details in the Workplace Details page, which is accessible through the profile tab after authenticated.
