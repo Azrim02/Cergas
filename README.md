@@ -33,7 +33,8 @@ In your Android device,
 
 ### Download the development build profile here
 
-https://drive.google.com/file/d/12oNNIhSFB5vNcJ5RC1-bfqlxXixl6bHz/view?usp=sharing
+[Download Dev Builds](https://drive.google.com/file/d/12oNNIhSFB5vNcJ5RC1-bfqlxXixl6bHz/view?usp=sharing)
+![RQ Code](qr_dev_build.png)
 
 ### Clone to execute development build
 
@@ -48,7 +49,9 @@ Ensure **Node.js** and **Expo CLI** are installed on your machine.
 ## Use the app!
 You can download the apk file directly and use it on your android device on the go! 
 
-https://drive.google.com/file/d/12vf6G50sIm00W8MhzuXa7nNvoZjnQ-aN/view?usp=sharing
+[Download APK](https://drive.google.com/file/d/12vf6G50sIm00W8MhzuXa7nNvoZjnQ-aN/view?usp=sharing)
+
+![QR Code](qr_download.jpg)
 
 This is the preview version of the app, but all currently implemented functionalities should be working fully as intended.
 
