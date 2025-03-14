@@ -71,7 +71,7 @@ function Home() {
 
     return (
         <View style={styles.container}>
-            <ImageBackground source={require("../assets/heartbeat_monitor.webp")} style={styles.upperContainer}>
+            <View style={styles.upperContainer}>
                 <Text style={styles.greetText}> Hello there, {user?.name} </Text>
                 <Text style={styles.isAtWorkText}>
                     {isAtWork
@@ -85,7 +85,7 @@ function Home() {
                 <Text style={styles.checkInOutText}>
                     Clocked-out: {checkOutTime ? checkOutTime.toLocaleTimeString() : "Not Clocked Out"}
                 </Text>
-            </ImageBackground>
+            </View>
 
             <View style={styles.lowerContainer}>
                 <FlatList
@@ -145,9 +145,10 @@ const styles = StyleSheet.create({
     },
     upperContainer: {
         flex: 1,
-        backgroundColor: colors.lightgrey,
+        backgroundColor: colors.primary,
         flexDirection: "column",
         justifyContent: "flex-end",
+        padding:10,
     },
     listContainer: {
         padding: 40,
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
         textAlign: "left",
         marginTop: 50,
         padding: 20,
-        paddingBottom: 30,
+        paddingBottom: 20,
     },
     isAtWorkText: {
         color: colors.white,
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "left",
         paddingHorizontal: 20,
-        paddingBottom: 10,
+        paddingBottom: 5,
     },
     checkInOutText: {
         color: colors.white,
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "left",
         paddingHorizontal: 20,
-        paddingBottom: 5,
+        paddingBottom: 2,
     },
     lowerContainer: {
         flex: 3,
