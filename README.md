@@ -35,7 +35,7 @@ In your Android device,
 
 [Download Dev Builds](https://drive.google.com/file/d/12oNNIhSFB5vNcJ5RC1-bfqlxXixl6bHz/view?usp=sharing)
 
-![QR Code](qr_dev_build.png)
+![QR Code](appendices/qr_dev_build.png)
 
 ### Clone to execute development build
 
@@ -52,7 +52,7 @@ You can download the apk file directly and use it on your android device on the 
 
 [Download APK](https://drive.google.com/file/d/12vf6G50sIm00W8MhzuXa7nNvoZjnQ-aN/view?usp=sharing)
 
-![QR Code](qr_download.jpg)
+![QR Code](appendices/qr_download.jpg)
 
 This is the preview version of the app, but all currently implemented functionalities should be working fully as intended.
 
@@ -77,3 +77,6 @@ This is the preview version of the app, but all currently implemented functional
 - Users must grant Health Connect permissions to enable step and heart rate tracking.
 - For any issues or feature requests, feel free to contribute or report them on the repository.
 - Ensure to set your workplace details in the Workplace Details page, which is accessible through the profile tab after authenticated.
+
+## University Documentations
+[Mirza's Notion Project Page](https://skinny-opal-2b5.notion.site/Third-Year-Project-10abd27ad13a804fbeb2c1e2b3131bec?pvs=74)
