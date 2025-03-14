@@ -9,7 +9,7 @@ const useStepRangeData = () => {
 
     // ✅ Fix: Ensure correct function dependency management
     const fetchStepsForCheckInOut = useCallback(async (checkInTime, checkOutTime) => {
-        if (!checkInTime) return; // No check-in means no steps to fetch
+        if (!checkInTime) return 0; // No check-in means no steps to fetch
 
         setLoading(true);
         setError(null);
@@ -41,9 +41,11 @@ const useStepRangeData = () => {
             setStepEntries(records);
 
             console.log(`📈 Steps from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}: ${totalSteps}`);
+            return totalSteps;
         } catch (err) {
             console.error("❌ Step Fetch Error:", err);
             setError(err.message);
+            return 0;
         } finally {
             setLoading(false);
         }

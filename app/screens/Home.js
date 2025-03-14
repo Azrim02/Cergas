@@ -4,22 +4,22 @@ import {
 } from "react-native";
 import { useAuth } from "../api/firebase/AuthProvider";
 import { useIsWorking } from "../context/IsWorkingProvider";
-import { useSteps } from "../context/StepsProvider";
+import { useHealth } from "../context/HealthProvider"; // Import HealthProvider
 import { useWorkplace } from "../context/WorkplaceProvider";
 
 import Card from "../components/Card";
 import colors from "../config/colors";
-import { ImageBackground } from "react-native";
 
 function Home() {
     const { user } = useAuth();
     const { workplaceData } = useWorkplace();
-    const { workHourSteps, stepEntries, loading, error, fetchStepsForCheckInOut } = useSteps();
+    const { workHourSteps, restingHeartRate, stepEntries, heartRateEntries, fetchStepsForCheckInOut, fetchHeartRateForCheckInOut, loading, error } = useHealth();
     const { isAtWork, isWithinWorkHours, distanceToWorkplace, checkInTime, checkOutTime } = useIsWorking();
     const isWorking = isAtWork && isWithinWorkHours;
 
     const [refreshing, setRefreshing] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+    const [modalType, setModalType] = useState("steps"); // "steps" or "heartRate"
     const [refreshKey, setRefreshKey] = useState(0); // Refresh trigger
 
     const [trackingData, setTrackingData] = useState([
@@ -30,42 +30,62 @@ function Home() {
             lastUpdated: null,
             icon: "foot-print",
         },
+        {
+            id: 2,
+            data: "Resting Heart Rate",
+            value: "Fetching...",
+            lastUpdated: null,
+            icon: "heart",
+        },
     ]);
 
-    // 🔄 Re-fetch steps when refreshKey changes
+    // 🔄 Update tracking data when steps or heart rate changes
     useEffect(() => {
         console.log("🔄 workHourSteps changed:", workHourSteps);
+        console.log("🔄 restingHeartRate changed:", restingHeartRate);
+
         if (!loading && !error) {
             setTrackingData([
                 {
                     id: 1,
                     data: "Workplace Steps",
-                    value: workHourSteps !== null ? workHourSteps : "Fetching...",
+                    value: workHourSteps !== null ? `${workHourSteps} steps` : "No Data",
                     lastUpdated: new Date().toLocaleTimeString(),
                     icon: "foot-print",
                 },
+                {
+                    id: 2,
+                    data: "Resting Heart Rate",
+                    value: restingHeartRate !== null ? `${restingHeartRate} BPM` : "No Data",
+                    lastUpdated: new Date().toLocaleTimeString(),
+                    icon: "heart",
+                },
             ]);
         }
-    }, [workHourSteps, loading, error, refreshKey]);
+    }, [workHourSteps, restingHeartRate, loading, error, refreshKey]);
 
-    // 🔄 Fetch Steps for Check-in and Check-out Time
+    // 🔄 Refresh steps & heart rate data
     const onRefresh = async () => {
         setRefreshing(true);
-        console.log("🔄 Refreshing step data...");
-    
+        console.log("🔄 Refreshing step & heart rate data...");
+
         try {
             if (checkInTime) {
                 const startTime = checkInTime;
                 const endTime = checkOutTime || new Date(); // If no check-out, use current time
-                console.log(`📊 Fetching steps from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}`);
-                await fetchStepsForCheckInOut(startTime, endTime);
+                console.log(`📊 Fetching steps & heart rate from ${startTime.toLocaleTimeString()} to ${endTime.toLocaleTimeString()}`);
+
+                await Promise.all([
+                    fetchStepsForCheckInOut(startTime, endTime),
+                    fetchHeartRateForCheckInOut(startTime, endTime)
+                ]);
             } else {
-                console.log("⚠️ No check-in recorded yet. Steps cannot be fetched.");
+                console.log("⚠️ No check-in recorded yet. Steps & heart rate cannot be fetched.");
             }
         } catch (error) {
-            console.error("❌ Error fetching steps:", error);
+            console.error("❌ Error fetching data:", error);
         }
-    
+
         setRefreshKey((prevKey) => prevKey + 1); // Force re-render
         setRefreshing(false);
     };
@@ -102,28 +122,35 @@ function Home() {
                             subTitle={item.value}
                             icon={item.icon}
                             lastUpdated={"" + item.lastUpdated}
-                            onPress={() => setModalVisible(true)}
+                            onPress={() => {
+                                setModalType(item.id === 1 ? "steps" : "heartRate");
+                                setModalVisible(true);
+                            }}
                         />
                     )}
                 />
             </View>
 
-            {/* Styled Scrollable Modal to Display Step Entries */}
+            {/* Styled Scrollable Modal to Display Step or Heart Rate Entries */}
             <Modal visible={modalVisible} transparent={true} animationType="slide">
                 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Step Entries</Text>
+                        <Text style={styles.modalTitle}>{modalType === "steps" ? "Step Entries" : "Heart Rate Entries"}</Text>
                         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                            <FlatList
-                                data={stepEntries}
-                                keyExtractor={(item, index) => index.toString()}
-                                renderItem={({ item }) => (
-                                    <View style={styles.stepEntry}>
-                                        <Text style={styles.stepTime}>{new Date(item.startTime).toLocaleTimeString()}</Text>
-                                        <Text style={styles.stepCount}>{item.count} steps</Text>
-                                    </View>
-                                )}
-                            />
+                        <FlatList
+                            data={modalType === "steps" ? stepEntries : heartRateEntries} // Use heartRateEntries for BPM
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item }) => (
+                                <View style={styles.entry}>
+                                    <Text style={styles.entryTime}>
+                                        {new Date(item.time).toLocaleTimeString()} {/* Format time */}
+                                    </Text>
+                                    <Text style={styles.entryValue}>
+                                        {modalType === "steps" ? `${item.count} steps` : `${item.bpm} BPM`} {/* Show BPM */}
+                                    </Text>
+                                </View>
+                            )}
+                        />
                         </ScrollView>
                         <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                             <Text style={styles.closeButtonText}>Close</Text>
@@ -182,36 +209,22 @@ const styles = StyleSheet.create({
     lowerContainer: {
         flex: 3,
     },
-
-    // --- Scrollable Modal Styles ---
     modalOverlay: {
         flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Dark overlay background
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)", 
     },
     modalContent: {
-        width: "85%",
+        width: "90%",
         maxHeight: "80%",
         backgroundColor: colors.white,
         padding: 20,
         borderRadius: 12,
         alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
         elevation: 5,
     },
-    modalTitle: {
-        fontSize: 22,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
-    scrollView: {
-        maxHeight: 300,
-    },
-    stepEntry: {
+    entry: {
         flexDirection: "row",
         justifyContent: "space-between",
         width: "100%",
@@ -219,11 +232,11 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: colors.lightgrey,
     },
-    stepTime: {
+    entryTime: {
         fontSize: 16,
         color: colors.black,
     },
-    stepCount: {
+    entryValue: {
         fontSize: 16,
         fontWeight: "bold",
         color: colors.primary,

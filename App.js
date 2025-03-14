@@ -6,7 +6,7 @@ import { useAuth, AuthProvider } from "./app/api/firebase/AuthProvider";
 import { LocationProvider } from "./app/context/LocationProvider"; 
 import { WorkplaceProvider } from "./app/context/WorkplaceProvider"; 
 import { IsWorkingProvider } from "./app/context/IsWorkingProvider";
-import { StepsProvider } from "./app/context/StepsProvider";
+import { HealthProvider } from "./app/context/HealthProvider";
 
 import TabNavigator from "./app/navigation/TabNavigator"; 
 import AuthNavigator from "./app/navigation/AuthNavigator"; 
@@ -28,9 +28,9 @@ function MainApp() {
         <LocationProvider> 
           <WorkplaceProvider> 
             <IsWorkingProvider>
-              <StepsProvider>
+              <HealthProvider>
                 <TabNavigator/>
-              </StepsProvider>
+              </HealthProvider>
             </IsWorkingProvider>
           </WorkplaceProvider>
         </LocationProvider>
